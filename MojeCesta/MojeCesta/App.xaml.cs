@@ -14,6 +14,7 @@ namespace MojeCesta
 
         protected override void OnStart()
         {
+            Services.Database.Inicializovat();
         }
 
         protected override void OnSleep()
