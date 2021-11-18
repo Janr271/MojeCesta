@@ -18,7 +18,8 @@ namespace MojeCesta.Services
 
             bool databazeExistuje = File.Exists(cestaKDatabazi);
 
-            db = new SQLiteConnection(cestaKDatabazi);
+            var connection = new SQLiteConnectionString(cestaKDatabazi,SQLiteOpenFlags.ReadWrite,true);
+            db = new SQLiteConnection(connection);
 
             db.CreateTable<Models.Agency>();
             db.CreateTable<Models.Calendar>();
@@ -71,11 +72,17 @@ namespace MojeCesta.Services
         public static void NaplnitTabulku<T>(string cestaKSouboru)
         where T : Models.IConstructor, new()
         {
-            foreach (string radek in File.ReadAllLines(cestaKSouboru))
+            using(StreamReader reader = new StreamReader(cestaKSouboru))
             {
-                T hodnota = new T();
-                hodnota.Consturctor(radek);
-                db.Insert(hodnota);
+                reader.ReadLine(); // přeskočit hlavičku
+                string radek = reader.ReadLine();
+
+                while(radek != null)
+                {
+                    T hodnota = new T();
+                    hodnota.Consturctor(radek);
+                    db.Insert(hodnota);
+                }
             }
         }
 

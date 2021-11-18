@@ -1,5 +1,7 @@
 ﻿
 
+using System.Globalization;
+
 namespace MojeCesta.Models
 {
     class Shape : IConstructor
@@ -13,11 +15,12 @@ namespace MojeCesta.Models
         public void Consturctor(string radek)
         {
             string[] hodnoty = radek.Split(',');
+            CultureInfo provider = CultureInfo.InvariantCulture;
             Shape_id = hodnoty[0];
-            Shape_pt_lat = double.Parse(hodnoty[1]);
-            Shape_pt_lon = double.Parse(hodnoty[2]);
+            Shape_pt_lat = double.Parse(hodnoty[1], provider);
+            Shape_pt_lon = double.Parse(hodnoty[2], provider);
             Shape_pt_sequence = int.Parse(hodnoty[3]);
-            Shape_dist_traveled = double.Parse(hodnoty[4]);
+            Shape_dist_traveled = double.Parse(hodnoty[4], provider);
         }
     }
 }

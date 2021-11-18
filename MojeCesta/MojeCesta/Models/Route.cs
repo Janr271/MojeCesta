@@ -1,5 +1,7 @@
 ﻿
 
+using System;
+
 namespace MojeCesta.Models
 {
     class Route : IConstructor
@@ -8,7 +10,7 @@ namespace MojeCesta.Models
         public int Agency_id { get; set; } 
         public string Route_short_name { get; set; } 
         public string Route_long_name { get; set; } 
-        public int Route_type { get; set; } 
+        public Type Route_type { get; set; } 
         public string Route_url { get; set; } 
         public string Route_color { get; set; } 
         public string Route_text_color { get; set; } 
@@ -23,13 +25,27 @@ namespace MojeCesta.Models
             Agency_id = int.Parse(hodnoty[1]);
             Route_short_name = hodnoty[2];
             Route_long_name = hodnoty[3];
-            Route_type = int.Parse(hodnoty[4]);
+            Route_type = (Type)Enum.Parse(typeof(Type),hodnoty[4]);
             Route_url = hodnoty[5];
             Route_color = hodnoty[6];
             Route_text_color = hodnoty[7];
-            Is_night = bool.Parse(hodnoty[8]);
-            Is_regional = bool.Parse(hodnoty[9]);
-            Is_substitute_transport = bool.Parse(hodnoty[10]);
+            Is_night = hodnoty[8].Equals("1");
+            Is_regional = hodnoty[9].Equals("1");
+            Is_substitute_transport = hodnoty[10].Equals("1");
+        }
+
+        public enum Type : ushort
+        {
+            Tram = 0,
+            Metro = 1,
+            Rail = 2,
+            Bus = 3,
+            Ferry = 4,
+            CableTram = 5,
+            CableCar = 6,
+            Funicular = 7,
+            Trolleybus = 11,
+            Monorail = 12
         }
     }
 }

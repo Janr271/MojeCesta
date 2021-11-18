@@ -1,5 +1,7 @@
 ﻿
 
+using System.Globalization;
+
 namespace MojeCesta.Models
 {
     class Stop : IConstructor
@@ -21,15 +23,16 @@ namespace MojeCesta.Models
         public void Consturctor(string radek)
         {
             string[] hodnoty = radek.Split(',');
+            CultureInfo provider = CultureInfo.InvariantCulture;
             Stop_id = hodnoty[0];
             Stop_name = hodnoty[1];
-            Stop_lat = double.Parse(hodnoty[2]);
-            Stop_lon = double.Parse(hodnoty[3]);
+            Stop_lat = double.Parse(hodnoty[2], provider);
+            Stop_lon = double.Parse(hodnoty[3], provider);
             Zone_id = hodnoty[4];
             Stop_url = hodnoty[5];
             Location_type = hodnoty[6];
             Parent_station = hodnoty[7];
-            Wheelchair_boarding = bool.Parse(hodnoty[8]);
+            Wheelchair_boarding = hodnoty[8].Equals("1");
             Level_id = hodnoty[9];
             Platform_code = hodnoty[10];
             Asw_node_id = hodnoty[11];
