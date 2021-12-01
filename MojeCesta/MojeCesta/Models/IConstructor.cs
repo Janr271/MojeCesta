@@ -6,6 +6,6 @@ namespace MojeCesta.Models
 {
     interface IConstructor
     {
-        void Consturctor(string radek);
+        void Consturctor(string[] radek);
     }
 }

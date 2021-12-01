@@ -1,8 +1,10 @@
-﻿
+﻿using SQLite;
+
 namespace MojeCesta.Models
 {
     class Agency : IConstructor
     {
+        [PrimaryKey]
         public int Agency_id { get; set; }
         public string Agency_name { get; set; }
         public string Agency_url { get; set; }
@@ -10,15 +12,14 @@ namespace MojeCesta.Models
         public string Agency_lang { get; set; }
         public string Agency_phone { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Agency_id = int.Parse(hodnoty[0]);
-            Agency_name = hodnoty[1];
-            Agency_url = hodnoty[2];
-            Agency_timezone = hodnoty[3];
-            Agency_lang = hodnoty[4];
-            Agency_phone = hodnoty[5];
+            Agency_id = int.Parse(radek[0]);
+            Agency_name = radek[1];
+            Agency_url = radek[2];
+            Agency_timezone = radek[3];
+            Agency_lang = radek[4];
+            Agency_phone = radek[5];
         }
     }
 }

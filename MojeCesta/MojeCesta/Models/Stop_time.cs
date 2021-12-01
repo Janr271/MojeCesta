@@ -17,22 +17,30 @@ namespace MojeCesta.Models
         public Operation Trip_operation_type { get; set; }
         public Bike Bikes_allowed { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            string format = "HH:mm:ss";
+            
+            string format = "H:mm:ss";
             CultureInfo provider = CultureInfo.InvariantCulture;
-            Trip_id = hodnoty[0];
-            Arrival_time = DateTime.ParseExact(hodnoty[1], format, provider);
-            Departure_time = DateTime.ParseExact(hodnoty[2], format, provider);
-            Stop_id = hodnoty[3];
-            Stop_sequence = int.Parse(hodnoty[4]);
-            Stop_headsign = hodnoty[5];
-            Pickup_type = (Pickup)Enum.Parse(typeof(Pickup), hodnoty[6]);
-            Drop_off_type = (Drop)Enum.Parse(typeof(Pickup), hodnoty[7]);
-            Shape_dist_traveled = double.Parse(hodnoty[8], provider);
-            Trip_operation_type = (Operation)Enum.Parse(typeof(Operation), hodnoty[9]);
-            Bikes_allowed = (Bike)Enum.Parse(typeof(Bike), hodnoty[10]);
+            Trip_id = radek[0];
+            int[] cas = Array.ConvertAll(radek[1].Split(':'), int.Parse);
+
+            int den = cas[0] / 24;
+            int hodina = cas[0] % 24;
+            int minuta = cas[1];
+            int sekunda = cas[2];
+             
+            Arrival_time = new DateTime(1, 1, (cas[0] / 24) + 1, cas[0] % 24, cas[1], cas[2]); // Nastavení správných hodnot pokud vstup obsahuje hodnoty přes 24h
+            cas = Array.ConvertAll(radek[2].Split(':'), int.Parse);
+            Departure_time = new DateTime(1, 1, (cas[0] / 24) + 1, cas[0] % 24, cas[1], cas[2]); // Nastavení správných hodnot pokud vstup obsahuje hodnoty přes 24h
+            Stop_id = radek[3];
+            Stop_sequence = int.Parse(radek[4]);
+            Stop_headsign = radek[5];
+            Pickup_type = (Pickup)Enum.Parse(typeof(Pickup), radek[6]);
+            Drop_off_type = (Drop)Enum.Parse(typeof(Pickup), radek[7]);
+            Shape_dist_traveled = double.Parse(radek[8], provider);
+            Trip_operation_type = (Operation)Enum.Parse(typeof(Operation), radek[9]);
+            Bikes_allowed = (Bike)Enum.Parse(typeof(Bike), radek[10]);
         }
         public enum Pickup : ushort
         {

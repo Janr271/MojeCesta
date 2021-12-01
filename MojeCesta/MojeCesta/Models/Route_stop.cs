@@ -9,13 +9,12 @@ namespace MojeCesta.Models
         public string Stop_id { get; set; }
         public int Stop_sequence { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Route_id = hodnoty[0];
-            Direction_id = int.Parse(hodnoty[1]);
-            Stop_id = hodnoty[2];
-            Stop_sequence = int.Parse(hodnoty[3]);
+            Route_id = radek[0];
+            Direction_id = int.Parse(radek[1]);
+            Stop_id = radek[2];
+            Stop_sequence = int.Parse(radek[3]);
         }
     }
 }

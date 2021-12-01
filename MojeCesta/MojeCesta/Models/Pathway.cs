@@ -12,16 +12,18 @@ namespace MojeCesta.Models
         public TimeSpan Traversal_time { get; set; }
         public string Signposted_as { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Pathway_id = hodnoty[0];
-            From_stop_id = hodnoty[1];
-            To_stop_id = hodnoty[2];
-            Pathway_mode = (Mode)Enum.Parse(typeof(Mode),hodnoty[3]);
-            Is_bidirectional = hodnoty[4].Equals("1");
-            Traversal_time = new TimeSpan(int.Parse(hodnoty[5])*10);
-            Signposted_as = hodnoty[6];
+            Pathway_id = radek[0];
+            From_stop_id = radek[1];
+            To_stop_id = radek[2];
+            Pathway_mode = (Mode)Enum.Parse(typeof(Mode),radek[3]);
+            Is_bidirectional = radek[4].Equals("1");
+            if(radek[5] != "")
+            {
+                Traversal_time = new TimeSpan(int.Parse(radek[5]) * 10);
+            }
+            Signposted_as = radek[6];
         }
 
         public enum Mode : ushort

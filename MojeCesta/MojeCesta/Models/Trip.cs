@@ -15,20 +15,19 @@ namespace MojeCesta.Models
         public bool Bikes_allowed { get; set; }
         public bool Exceptional { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Route_id = hodnoty[0];
-            Service_id = hodnoty[1];
-            Trip_id = hodnoty[2];
-            Trip_headsign = hodnoty[3];
-            Trip_short_name = hodnoty[4];
-            Direction_id = hodnoty[5];
-            Block_id = hodnoty[6];
-            Shape_id = hodnoty[7];
-            Wheelchair_accessible = bool.Parse(hodnoty[8]);
-            Bikes_allowed = bool.Parse(hodnoty[9]);
-            Exceptional = bool.Parse(hodnoty[10]);
+            Route_id = radek[0];
+            Service_id = radek[1];
+            Trip_id = radek[2];
+            Trip_headsign = radek[3];
+            Trip_short_name = radek[4];
+            Direction_id = radek[5];
+            Block_id = radek[6];
+            Shape_id = radek[7];
+            Wheelchair_accessible = radek[8].Equals("1");
+            Bikes_allowed = radek[9].Equals("1");
+            Exceptional = radek[10].Equals("1");
         }
     }
 }

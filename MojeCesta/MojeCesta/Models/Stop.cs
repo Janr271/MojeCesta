@@ -20,23 +20,25 @@ namespace MojeCesta.Models
         public string Asw_node_id { get; set; }
         public string Asw_stop_id { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
             CultureInfo provider = CultureInfo.InvariantCulture;
-            Stop_id = hodnoty[0];
-            Stop_name = hodnoty[1];
-            Stop_lat = double.Parse(hodnoty[2], provider);
-            Stop_lon = double.Parse(hodnoty[3], provider);
-            Zone_id = hodnoty[4];
-            Stop_url = hodnoty[5];
-            Location_type = hodnoty[6];
-            Parent_station = hodnoty[7];
-            Wheelchair_boarding = hodnoty[8].Equals("1");
-            Level_id = hodnoty[9];
-            Platform_code = hodnoty[10];
-            Asw_node_id = hodnoty[11];
-            Asw_stop_id = hodnoty[12];
+            Stop_id = radek[0];
+            Stop_name = radek[1];
+            Stop_lat = double.Parse(radek[2], provider);
+            Stop_lon = double.Parse(radek[3], provider);
+            Zone_id = radek[4];
+            Stop_url = radek[5];
+            Location_type = radek[6];
+            Parent_station = radek[7];
+            Wheelchair_boarding = radek[8].Equals("1");
+            Level_id = radek[9];
+            Platform_code = radek[10];
+            Asw_node_id = radek[11];
+            if(radek.Length == 13)
+            {
+                Asw_stop_id = radek[12];
+            }
         }
     }
 }

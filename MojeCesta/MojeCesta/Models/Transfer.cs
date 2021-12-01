@@ -11,15 +11,20 @@ namespace MojeCesta.Models
         public string From_trip_id { get; set; }
         public string To_trip_id { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            From_stop_id = hodnoty[0];
-            To_stop_id = hodnoty[1];
-            Transfer_type = (Type)Enum.Parse(typeof(Type),hodnoty[2]);
-            Min_transfer_time = new TimeSpan(int.Parse(hodnoty[3])*10);
-            From_trip_id = hodnoty[4];
-            To_trip_id = hodnoty[5];
+            From_stop_id = radek[0];
+            To_stop_id = radek[1];
+            Transfer_type = (Type)Enum.Parse(typeof(Type),radek[2]);
+            if(radek[3] != "")
+            {
+                Min_transfer_time = new TimeSpan(int.Parse(radek[3]) * 10);
+            }
+            From_trip_id = radek[4];
+            if(radek.Length == 6)
+            {
+                To_trip_id = radek[5];
+            }
         }
 
         public enum Type

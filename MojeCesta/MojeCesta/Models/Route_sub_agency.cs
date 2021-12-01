@@ -9,13 +9,15 @@ namespace MojeCesta.Models
         public int Sub_agency_id { get; set; }
         public string Sub_agency_name { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Route_id = hodnoty[0];
-            Route_licence_number = int.Parse(hodnoty[1]);
-            Sub_agency_id = int.Parse(hodnoty[2]);
-            Sub_agency_name = hodnoty[3];
+            Route_id = radek[0];
+            if(radek[1] != "")
+            {
+                Route_licence_number = int.Parse(radek[1]);
+            }
+            Sub_agency_id = int.Parse(radek[2]);
+            Sub_agency_name = radek[3];
         }
     }
 }

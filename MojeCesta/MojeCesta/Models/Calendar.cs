@@ -16,21 +16,20 @@ namespace MojeCesta.Models
         public DateTime Start_date { get; set; }
         public DateTime End_date { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
             string format = "yyyyMMdd";
             CultureInfo provider = CultureInfo.InvariantCulture;
-            string[] hodnoty = radek.Split(',');
-            Service_id = hodnoty[0];
-            Monday = bool.Parse(hodnoty[1]);
-            Tuesday = bool.Parse(hodnoty[2]);
-            Wednesday = bool.Parse(hodnoty[3]);
-            Thursday = bool.Parse(hodnoty[4]);
-            Friday = bool.Parse(hodnoty[5]);
-            Saturday = bool.Parse(hodnoty[6]);
-            Sunday = bool.Parse(hodnoty[7]);
-            Start_date = DateTime.ParseExact(hodnoty[8],format,provider);
-            End_date = DateTime.ParseExact(hodnoty[9], format, provider);
+            Service_id = radek[0];
+            Monday = radek[1].Equals("1");
+            Tuesday = radek[2].Equals("1");
+            Wednesday = radek[3].Equals("1");
+            Thursday = radek[4].Equals("1");
+            Friday = radek[5].Equals("1");
+            Saturday = radek[6].Equals("1");
+            Sunday = radek[7].Equals("1");
+            Start_date = DateTime.ParseExact(radek[8],format,provider);
+            End_date = DateTime.ParseExact(radek[9], format, provider);
         }
     }
 }

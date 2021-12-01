@@ -7,12 +7,11 @@ namespace MojeCesta.Models
         public int Level_index { get; set; }
         public string Level_name { get; set; }
 
-        public void Consturctor(string radek)
+        public void Consturctor(string[] radek)
         {
-            string[] hodnoty = radek.Split(',');
-            Level_id = hodnoty[0];
-            Level_index = int.Parse(hodnoty[1]);
-            Level_name = hodnoty[2];
+            Level_id = radek[0];
+            Level_index = int.Parse(radek[1]);
+            Level_name = radek[2];
         }
     }
 }
