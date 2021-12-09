@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace MojeCesta
 {
@@ -12,9 +13,10 @@ namespace MojeCesta
             MainPage = new AppShell();
         }
 
-        protected override void OnStart()
+        protected async override void OnStart()
         {
-            Services.Database.Inicializovat();
+           await Services.Database.Inicializovat();
+           await Services.AktualizaceDat.ZkontrolovatAktualizace();
         }
 
         protected override void OnSleep()

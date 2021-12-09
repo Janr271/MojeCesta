@@ -19,8 +19,6 @@ namespace MojeCesta.Models
 
         public void Consturctor(string[] radek)
         {
-            
-            string format = "H:mm:ss";
             CultureInfo provider = CultureInfo.InvariantCulture;
             Trip_id = radek[0];
             int[] cas = Array.ConvertAll(radek[1].Split(':'), int.Parse);
