@@ -2,10 +2,10 @@
 using System.Linq;
 using System.IO;
 using System.IO.Compression;
-using System.Collections.Generic;
-using SQLite;
 using System.Threading.Tasks;
 using MojeCesta.Models;
+using SQLite;
+using FileHelpers;
 
 namespace MojeCesta.Services
 {
@@ -23,22 +23,22 @@ namespace MojeCesta.Services
         {
             db = new SQLiteAsyncConnection(cestaKDatabazi); // Vytvoření spojení s databází
 
-            db.CreateTableAsync<Agency>().Wait();
-            db.CreateTableAsync<Calendar>().Wait();
-            db.CreateTableAsync<Calendar_date>().Wait();
-            db.CreateTableAsync<Fare_attribute>().Wait();
-            db.CreateTableAsync<Fare_rule>().Wait();
-            db.CreateTableAsync<Feed_info>().Wait();
-            db.CreateTableAsync<Level>().Wait();
-            db.CreateTableAsync<Pathway>().Wait();
-            db.CreateTableAsync<Route_stop>().Wait();
-            db.CreateTableAsync<Route_sub_agency>().Wait();
-            db.CreateTableAsync<Route>().Wait();
-            db.CreateTableAsync<Shape>().Wait();
-            db.CreateTableAsync<Stop_time>().Wait();
-            db.CreateTableAsync<Stop>().Wait();
-            db.CreateTableAsync<Transfer>().Wait();
-            db.CreateTableAsync<Trip>().Wait();
+            await db.CreateTableAsync<Agency>();
+            await db.CreateTableAsync<Calendar>();
+            await db.CreateTableAsync<Calendar_date>();
+            await db.CreateTableAsync<Fare_attribute>();
+            await db.CreateTableAsync<Fare_rule>();
+            await db.CreateTableAsync<Feed_info>();
+            await db.CreateTableAsync<Level>();
+            await db.CreateTableAsync<Pathway>();
+            await db.CreateTableAsync<Route_stop>();
+            await db.CreateTableAsync<Route_sub_agency>();
+            await db.CreateTableAsync<Route>();
+            await db.CreateTableAsync<Shape>();
+            await db.CreateTableAsync<Stop_time>();
+            await db.CreateTableAsync<Stop>();
+            await db.CreateTableAsync<Transfer>();
+            await db.CreateTableAsync<Trip>();
         }
 
         public static async Task Aktualizovat()
@@ -67,8 +67,8 @@ namespace MojeCesta.Services
             await NaplnitTabulku<Route_stop>(Path.Combine(cestaKeSlozce, "route_stops.txt"));
             await NaplnitTabulku<Route_sub_agency>(Path.Combine(cestaKeSlozce, "route_sub_agencies.txt"));
             await NaplnitTabulku<Route>(Path.Combine(cestaKeSlozce, "routes.txt"));
-            //await NaplnitTabulku<Shape>(Path.Combine(cestaKeSlozce, "shapes.txt"));
-            await NaplnitTabulku<Stop_time>(Path.Combine(cestaKeSlozce, "stop_times.txt"));
+            await NaplnitTabulkuRychle<Shape>(Path.Combine(cestaKeSlozce, "shapes.txt"));
+            await NaplnitTabulkuRychle<Stop_time>(Path.Combine(cestaKeSlozce, "stop_times.txt"));
             await NaplnitTabulku<Stop>(Path.Combine(cestaKeSlozce, "stops.txt"));
             await NaplnitTabulku<Transfer>(Path.Combine(cestaKeSlozce, "transfers.txt"));
             await NaplnitTabulku<Trip>(Path.Combine(cestaKeSlozce, "trips.txt"));
@@ -78,71 +78,42 @@ namespace MojeCesta.Services
         }
 
         private static async Task NaplnitTabulku<T>(string cestaKSouboru)
+        where T : class
+        {
+            var engine = new FileHelperAsyncEngine<T>();
+            engine.Options.IgnoreFirstLines = 1;
+
+            using (engine.BeginReadFile(cestaKSouboru))
+            {
+                foreach (var zaznam in engine)
+                {
+                    await db.InsertAsync(zaznam);
+                }
+            }
+        }
+
+        private static async Task NaplnitTabulkuRychle<T>(string cestaKSouboru)
         where T : IConstructor, new()
         {
-            using (StreamReader reader = new StreamReader(cestaKSouboru))
+            using (StreamReader s = new StreamReader(cestaKSouboru))
             {
-                string radek = reader.ReadLine(); // přeskočit hlavičku
+                string radek = s.ReadLine();
 
-                while (true) // Přidávat záznamy do tabulky, dokud neprojedeme všechny záznamy
+                while (true)
                 {
-                    radek = reader.ReadLine();
+                    radek = s.ReadLine();
 
-                    if (radek == null)
+                    if(radek == null)
                     {
                         break;
                     }
 
                     T hodnota = new T();
-                    hodnota.Consturctor(RozdelitCSV(radek));
+                    hodnota.Consturctor(radek.Split(','));
 
-                    db.InsertAsync(hodnota).Wait();
+                    await db.InsertAsync(hodnota);
                 }
             }
-        }
-
-        private static string[] RozdelitCSV(string radek)
-        {
-            List<string> vysledek = new List<string>();
-
-            int zacatek = 0; // počáteční index hodnoty
-            bool obsahujeUvozovky = false; // hodnota obsahuje uvozovky
-            for (int i = 0; i < radek.Length; i++)
-            {
-                if (radek[i] == ',')
-                {
-                    if (obsahujeUvozovky == false)
-                    {
-                        vysledek.Add(radek.Substring(zacatek, i - zacatek)); // Pokud neobsahuje uvozovky tak přidá prvek
-                    }
-                    else
-                    {
-                        obsahujeUvozovky = false;
-                    }
-                    zacatek = i + 1; // nastaví začátek dalšího pole
-                }
-                else if (radek[i] == '"')
-                {
-                    obsahujeUvozovky = true;
-                    int konec = radek.IndexOf('"', i + 1); // najde druhou uvozovku
-                    if (konec != -1)
-                    {
-                        vysledek.Add(radek.Substring(i + 1, konec - (i + 1))); // přidá hodnotu v uvozovkách
-                        i = konec;
-                    }
-                    else
-                    {
-                        vysledek.Add(radek.Substring(i + 1, radek.Length - (i + 1))); // přidá poslední člen s chybějící uzavírací uvozovkou a skončí
-                        break;
-                    }
-                }
-                else if (i == radek.Length - 1)
-                {
-                    vysledek.Add(radek.Substring(zacatek, (i + 1) - zacatek)); // přidá poslední prvek
-                }
-            }
-
-            return vysledek.ToArray();
         }
 
         public static string[] SeznamZastavek()
@@ -150,33 +121,45 @@ namespace MojeCesta.Services
             return db.Table<Stop>().ToArrayAsync().Result.Select(a => a.Stop_name).ToArray();
         }
 
-        public static void SmazatDatabazi()
+        public static async void SmazatDatabazi()
         {
-            db.DeleteAllAsync<Agency>().Wait();
-            db.DeleteAllAsync<Calendar>().Wait();
-            db.DeleteAllAsync<Calendar_date>().Wait();
-            db.DeleteAllAsync<Fare_attribute>().Wait();
-            db.DeleteAllAsync<Fare_rule>().Wait();
-            db.DeleteAllAsync<Feed_info>().Wait();
-            db.DeleteAllAsync<Level>().Wait();
-            db.DeleteAllAsync<Pathway>().Wait();
-            db.DeleteAllAsync<Route_stop>().Wait();
-            db.DeleteAllAsync<Route_sub_agency>().Wait();
-            db.DeleteAllAsync<Route>().Wait();
-            db.DeleteAllAsync<Shape>().Wait();
-            db.DeleteAllAsync<Stop_time>().Wait();
-            db.DeleteAllAsync<Stop>().Wait();
-            db.DeleteAllAsync<Transfer>().Wait();
-            db.DeleteAllAsync<Trip>().Wait();
-        } 
+            await db.DeleteAllAsync<Agency>();
+            await db.DeleteAllAsync<Calendar>();
+            await db.DeleteAllAsync<Calendar_date>();
+            await db.DeleteAllAsync<Fare_attribute>();
+            await db.DeleteAllAsync<Fare_rule>();
+            await db.DeleteAllAsync<Feed_info>();
+            await db.DeleteAllAsync<Level>();
+            await db.DeleteAllAsync<Pathway>();
+            await db.DeleteAllAsync<Route_stop>();
+            await db.DeleteAllAsync<Route_sub_agency>();
+            await db.DeleteAllAsync<Route>();
+            await db.DeleteAllAsync<Shape>();
+            await db.DeleteAllAsync<Stop_time>();
+            await db.DeleteAllAsync<Stop>();
+            await db.DeleteAllAsync<Transfer>();
+            await db.DeleteAllAsync<Trip>();
+        }
 
-        public static Task<Stop[]> NajitZastavku(string jmeno)
+        public static Task<Stop[]> NajitZastavky(string jmeno)
         {
             return db.Table<Stop>().Where(a => a.Stop_name.Contains(jmeno)).ToArrayAsync();
         }
         public static Task<Stop_time[]> NajitOdjezdy(Stop zastavka, DateTime cas)
         {
             return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas).OrderBy(a => a.Departure_time).Take(50).ToArrayAsync();
+        }
+        public static Task<Trip> NajitLinku(string id)
+        {
+            return db.FindAsync<Trip>(id);
+        }
+        public static async Task<bool> LinkaObsahujeCil(string idLinky, string idCile, int posun)
+        {
+            return db.Table<Stop_time>().Where(a => a.Stop_id == idLinky && a.Trip_id == idCile && a.Stop_sequence > posun).CountAsync().Result != 0;
+        }
+        public static Task<Stop_time> NajitDalsiZastavku(string idLinky, string idZastavky, int posun)
+        {
+            return db.FindAsync<Stop_time>(a => a.Stop_id == idLinky && a.Trip_id == idZastavky && a.Stop_sequence > posun);
         }
     }
 }

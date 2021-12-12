@@ -1,31 +1,85 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace MojeCesta.Services
 {
     public static class AktualizaceDat
     {
-        public static bool PouzeWifi { get => pouzeWifi; set => pouzeWifi = value; }
-        private static bool pouzeWifi = true;
-
-        public static bool AutomatickaAktualizace { get => automatickaAktualizace; set => automatickaAktualizace = value; }
-        private static bool automatickaAktualizace = true;
-
-        public static TimeSpan Frekvence { get => frekvence; set => frekvence = value; }
-        private static TimeSpan frekvence = new TimeSpan( 7, 0, 0, 0);
-
-        public static DateTime PosledniAktualizace { get => posledniAktualizace; set => posledniAktualizace = value; }
-        private static DateTime posledniAktualizace;
-
-       
-        
-        public static void Stahnout(string cestaKZipu)
+        public static bool PouzeWifi
         {
-            using(WebClient client = new WebClient())
+            get
             {
-                client.DownloadFile(@"http://data.pid.cz/PID_GTFS.zip", cestaKZipu);
+                if (Application.Current.Properties.ContainsKey("pouzeWifi"))
+                {
+                    return (bool)Application.Current.Properties["pouzeWifi"];
+                }
+                return true;
             }
+            set
+            {
+                Application.Current.Properties["pouzeWifi"] = value;
+            }
+        }
+
+        public static bool AutomatickaAktualizace
+        {
+            get
+            {
+                if (Application.Current.Properties.ContainsKey("automatickaAktualizace"))
+                {
+                    return (bool)Application.Current.Properties["automatickaAktualizace"];
+                }
+                return true;
+            }
+            set
+            {
+                Application.Current.Properties["automatickaAktualizace"] = value;
+            }
+        }
+
+        public static TimeSpan Frekvence
+        {
+            get
+            {
+                if (Application.Current.Properties.ContainsKey("frekvence"))
+                {
+                    return (TimeSpan)Application.Current.Properties["frekvence"];
+                }
+                return new TimeSpan(7, 0, 0, 0);
+            }
+            set
+            {
+                Application.Current.Properties["frekvence"] = value;
+            }
+        }
+
+        public static DateTime? PosledniAktualizace 
+        {
+            get 
+            {
+                if (Application.Current.Properties.ContainsKey("posledniAktualizace"))
+                {
+                    return (DateTime)Application.Current.Properties["posledniAktualizace"];
+                }
+                return null;
+            } 
+            set 
+            { 
+                Application.Current.Properties["posledniAktualizace"] = value; 
+            } 
+        }
+
+
+
+        public static bool Stahnout(string cestaKZipu)
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+            }
+            return true;
         }
 
         public static async Task ZkontrolovatAktualizace() // Metoda se volá po startu a ověřuje, zda není potřeba aktualizovat databázi

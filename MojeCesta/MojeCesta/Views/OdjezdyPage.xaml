@@ -4,7 +4,7 @@
              x:Class="MojeCesta.Views.OdjezdyPage">
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
+            <Label Text="Tady bude výběr odjezdů!"
                 VerticalOptions="CenterAndExpand" 
                 HorizontalOptions="CenterAndExpand" />
         </StackLayout>

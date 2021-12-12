@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MojeCesta.Services
 {
     static class Odjezdy
     {
-        public static void NajitOdjezdy(Models.Stop zastavka, DateTime cas)
+        public static List<Models.Stop_time> NajitOdjezdy(Models.Stop zastavka, DateTime cas)
         {
-            Models.Stop_time[] odjezdy = Database.NajitOdjezdy(zastavka, cas).Result;
+            return new List<Models.Stop_time>(Database.NajitOdjezdy(zastavka, cas).Result);
         }
     }
 }

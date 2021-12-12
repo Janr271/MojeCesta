@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace MojeCesta
@@ -15,8 +16,8 @@ namespace MojeCesta
 
         protected async override void OnStart()
         {
-           await Services.Database.Inicializovat();
-           await Services.AktualizaceDat.ZkontrolovatAktualizace();
+           await Task.Run(Services.Database.Inicializovat);
+           await Task.Run(Services.AktualizaceDat.ZkontrolovatAktualizace);
         }
 
         protected override void OnSleep()

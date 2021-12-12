@@ -1,30 +1,22 @@
-﻿using System;
+﻿using SQLite;
+using FileHelpers;
 
 namespace MojeCesta.Models
 {
-    class Pathway : IConstructor
+    [DelimitedRecord(",")]
+    class Pathway
     {
+        [PrimaryKey]
         public string Pathway_id { get; set; }
         public string From_stop_id { get; set; } 
         public string To_stop_id { get; set; } 
         public Mode Pathway_mode { get; set; }
-        public bool Is_bidirectional { get; set; } 
-        public TimeSpan Traversal_time { get; set; }
+        public bool Is_bidirectional { get; set; }
+        public int? Traversal_time { get; set; } // čas v sekundách
+        [FieldQuoted]
         public string Signposted_as { get; set; }
-
-        public void Consturctor(string[] radek)
-        {
-            Pathway_id = radek[0];
-            From_stop_id = radek[1];
-            To_stop_id = radek[2];
-            Pathway_mode = (Mode)Enum.Parse(typeof(Mode),radek[3]);
-            Is_bidirectional = radek[4].Equals("1");
-            if(radek[5] != "")
-            {
-                Traversal_time = new TimeSpan(int.Parse(radek[5]) * 10);
-            }
-            Signposted_as = radek[6];
-        }
+        [FieldQuoted]
+        public string Reverse_signposted_as { get; set; }
 
         public enum Mode : ushort
         {
