@@ -28,10 +28,16 @@
             <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
         </ResourceDictionary>
     </Shell.Resources>
-
+    
     <TabBar>
-        <ShellContent Title="Spojení" Icon="icon_about.png" Route="SpojeniPage" ContentTemplate="{DataTemplate local:SpojeniPage}" />
-        <ShellContent Title="Odjezdy" Icon="icon_feed.png" Route="OdjezdyPage" ContentTemplate="{DataTemplate local:OdjezdyPage}" />
+        <ShellContent Title="Spojení" 
+                      Icon="postava.png" 
+                      Route="SpojeniPage" 
+                      ContentTemplate="{DataTemplate local:SpojeniPage}" />
+        <ShellContent Title="Odjezdy" 
+                      Icon="bus.png" 
+                      Route="OdjezdyPage" 
+                      ContentTemplate="{DataTemplate local:OdjezdyPage}" />
     </TabBar>
 
 </Shell>

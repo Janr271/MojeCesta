@@ -1,12 +1,89 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MojeCesta.Views.SpojeniPage">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             x:Class="MojeCesta.Views.SpojeniPage"
+             Title="Moje Cesta">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Icon="kolo.png" 
+                     Clicked="Nastaveni_Clicked"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Tady bude výběr spojení!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <Grid Margin="20,5,20,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="6*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <ImageButton Source="vymena.png"
+                             Clicked="Zmena_Clicked"
+                             Grid.Row="0"
+                             Grid.Column="0"
+                             Grid.RowSpan="2"
+                             />
+
+            <Entry     x:Name="ZeZastavky"
+                       Placeholder="Výchozí zastávka"
+                       Grid.Row="0"
+                       Grid.Column="1"
+                       Grid.ColumnSpan="2"/>
+            <Entry     x:Name="NaZastavku"
+                       Placeholder="Cílová zastávka"
+                       Grid.Row="1"
+                       Grid.Column="1"
+                       Grid.ColumnSpan="2"/>
+
+            <TimePicker x:Name="Cas" 
+                            Format="t"
+                            Grid.Row="2"
+                            Grid.Column="1"/>
+
+            <DatePicker x:Name="Datum"
+                            Format="d"
+                            Grid.Row="2"
+                            Grid.Column="2"/>
+
+            <Button Text="Upřesnit" 
+                        Clicked="Upresnit_Clicked"
+                        BackgroundColor="{StaticResource Primary}"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                         Grid.RowSpan="2"/>
+
+            <RadioButton x:Name="Odjezd"
+                            GroupName="Parametr"
+                             Content="Odjezd"
+                             Grid.Row="3"
+                             Grid.Column="2"/>
+
+            <RadioButton GroupName="Parametr" 
+                             Content="Příjezd"
+                             Grid.Row="4"
+                             Grid.Column="2"/>
+
+            <Button Text="Hledat"
+                        Clicked="Hledat_Clicked"
+                        BackgroundColor="{StaticResource Primary}"
+                        Grid.Row="5"
+                        Grid.Column="1"
+                         Grid.ColumnSpan="2"/>
+
+            <ListView Header="Historie"
+                          ItemTapped="Historie_Tapped"
+                          Grid.Row="6"
+                          Grid.Column="0"
+                          Grid.ColumnSpan="3"/>
+
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

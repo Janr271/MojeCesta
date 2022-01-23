@@ -1,12 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MojeCesta.Views.OdjezdyPage">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             x:Class="MojeCesta.Views.OdjezdyPage"
+             Title="Moje Cesta">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Icon="kolo.png" Clicked="Nastaveni_Clicked"/>
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Tady bude výběr odjezdů!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <Grid Margin="20,5,20,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="6*"/>
+            </Grid.RowDefinitions>
+            
+            <Entry x:Name="ZeZastavky"
+                   Placeholder="Výchozí zastávka"
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"/>
+            
+            <TimePicker x:Name="Cas" 
+                        Format="t"
+                        Grid.Row="1"
+                        Grid.Column="0"/>
+            
+            <DatePicker x:Name="Datum"
+                        Format="d"
+                        Grid.Row="1"
+                        Grid.Column="1"/>
+            
+            <Button Text="Hledat"
+                    Clicked="Hledat_Clicked"
+                    BackgroundColor="{StaticResource Primary}"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"/>
+
+            <ListView x:Name="Historie"
+                      Header="Historie"
+                      ItemTapped="Historie_ItemTapped"
+                      Grid.Row="3"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"/>
+
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

@@ -145,6 +145,10 @@ namespace MojeCesta.Services
         {
             return db.Table<Stop>().Where(a => a.Stop_name.Contains(jmeno)).ToArrayAsync();
         }
+        public static Task<Stop> NajitZastavku(string jmeno)
+        {
+            return db.Table<Stop>().FirstAsync(a => a.Stop_name.Contains(jmeno));
+        }
         public static Task<Stop_time[]> NajitOdjezdy(Stop zastavka, DateTime cas)
         {
             return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas).OrderBy(a => a.Departure_time).Take(50).ToArrayAsync();

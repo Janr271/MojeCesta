@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             x:Class="MojeCesta.Views.NastaveniPage"
+             Title="Nastavení">
+
+    <ContentPage.Content>
+        <StackLayout >
+            <Grid Margin="15,5,15,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="6*"/>
+                </Grid.RowDefinitions>
+                <Label Text="Tmavý režim"
+                       VerticalOptions="Center"
+                       Grid.Row="0"
+                       Grid.Column="0"/>
+                
+                <Switch 
+                    PropertyChanged="Rezim_PropertyChanged"
+                    Grid.Row="0"
+                    Grid.Column="1"/>
+                
+                <Label Text="Automatická aktualizace dat"
+                       VerticalOptions="Center"
+                       Grid.Row="1"
+                       Grid.Column="0"/>
+                
+                <Switch PropertyChanged="Aktualizace_PropertyChanged"
+                        Grid.Row="1"
+                        Grid.Column="1"/>
+                
+                <Label Text="Aktualizovat pouze přes WiFi"
+                       VerticalOptions="Center"
+                       Grid.Row="2" 
+                       Grid.Column="0"/>
+                
+                <Switch PropertyChanged="Wifi_PropertyChanged" 
+                        Grid.Row="2"
+                        Grid.Column="1"/>
+                
+                <Button Text="Aktualizovat data"
+                        Clicked="Aktualizovat_Clicked"
+                        BackgroundColor="{StaticResource Primary}"
+                        Margin="0,2,0,2"
+                        Grid.Row="3"
+                        Grid.Column="0"/>
+                
+                <Label Text="Poslední aktualizace dat"
+                       VerticalOptions="Center"
+                       Grid.Row="4"
+                       Grid.Column="0"/>
+                
+                <Label x:Name="AktualizaceDat"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End"
+                       Margin="0,0,15,0"
+                       Grid.Row="4"
+                       Grid.Column="1"/>
+                
+                <Label Text="Platnost dat"
+                       VerticalOptions="Center"
+                       Grid.Row="5"
+                       Grid.Column="0"/>
+                
+                <Label x:Name="PlatnostDat"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End"
+                       Margin="0,0,15,0"
+                       Grid.Row="5"
+                       Grid.Column="1"/>
+                
+            </Grid>
+
+            <Grid Margin="15,5,15,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+
+                </Grid.RowDefinitions>
+                <Label Text="O programu"
+                       FontSize="Large"
+                       Grid.Row="0"/>
+                
+                <Label Text="Verze"
+                       FontAttributes="Bold"
+                       Grid.Row="1"
+                       Grid.Column="0"/>
+                
+                <Label x:Name="Verze"
+                       Grid.Row="1"
+                       Grid.Column="1"/>
+                
+                <Label Text="Vývojář"
+                       FontAttributes="Bold"
+                       Grid.Row="2"
+                       Grid.Column="0"/>
+                
+                <Label Text="Jan Rott"
+                       Grid.Row="2"
+                       Grid.Column="1"/>
+                
+                <Label Text="Navigační data"
+                       FontAttributes="Bold" 
+                       Grid.Row="3"
+                       Grid.Column="0"/>
+                
+                <Label Text="Otevřená data PID"
+                       Grid.Row="3"
+                       Grid.Column="1"/>
+                
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
