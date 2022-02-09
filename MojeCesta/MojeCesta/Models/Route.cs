@@ -6,13 +6,12 @@ namespace MojeCesta.Models
     [DelimitedRecord(",")]
     class Route
     {
-        [PrimaryKey]
         public string Route_id { get; set; } 
-        public int Agency_id { get; set; } 
+        public string Agency_id { get; set; } 
         public string Route_short_name { get; set; } 
         [FieldQuoted]
         public string Route_long_name { get; set; } 
-        public Type Route_type { get; set; } 
+        public RouteType Route_type { get; set; } 
         [FieldQuoted]
         public string Route_url { get; set; } 
         public string Route_color { get; set; } 
@@ -21,7 +20,7 @@ namespace MojeCesta.Models
         public bool Is_regional { get; set; }
         public bool Is_substitute_transport { get; set; }
 
-        public enum Type : ushort
+        public enum RouteType : ushort
         {
             Tram = 0,
             Metro = 1,

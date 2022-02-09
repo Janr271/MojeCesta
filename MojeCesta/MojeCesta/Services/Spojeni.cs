@@ -6,7 +6,7 @@ namespace MojeCesta.Services
 {
     static class Spojeni
     {
-        public static List<Tuple<Stop_time, Stop_time>[]> NajitSpojeni(Stop zastavkaOd, Stop zastavkaDo, DateTime cas, bool casOdjezdu)
+        public static List<Tuple<Stop_time, Stop_time>[]> NajitSpojeni(Stop zastavkaOd, Stop zastavkaDo, TimeSpan cas, bool casOdjezdu)
         {
             List<Tuple<Stop_time, Stop_time>[]> nalezeneSpojeni = new List<Tuple<Stop_time, Stop_time>[]>();
             if (casOdjezdu)

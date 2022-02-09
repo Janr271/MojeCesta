@@ -8,7 +8,8 @@ namespace MojeCesta.Models
         public override object StringToField(string from)
         {
             int[] cas = Array.ConvertAll(from.Split(':'), int.Parse);
-            return new DateTime(1, 1, (cas[0] / 24) + 1, cas[0] % 24, cas[1], cas[2]);
+            //return new DateTime(1, 1, (cas[0] / 24) + 1, cas[0] % 24, cas[1], cas[2]);
+            return new TimeSpan(cas[0], cas[1], cas[2]);
         }
     }
 }

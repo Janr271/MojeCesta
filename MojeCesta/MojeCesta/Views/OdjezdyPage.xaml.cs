@@ -23,9 +23,7 @@ namespace MojeCesta.Views
         {
             if(!String.IsNullOrEmpty(ZeZastavky.Text))
             {
-                DateTime cas = new DateTime(2022, 1, 1);
-                cas += Cas.Time;
-                Services.Odjezdy.NajitOdjezdy(Services.Database.NajitZastavku(ZeZastavky.Text).Result, cas);
+                Services.Odjezdy.NajitOdjezdy(Services.Database.NajitZastavku(ZeZastavky.Text).Result, Cas.Time);
             }
 
             Shell.Current.GoToAsync(nameof(VysledkyOdjezduPage));

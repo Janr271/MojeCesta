@@ -6,7 +6,6 @@ namespace MojeCesta.Models
     [DelimitedRecord(",")]
     class Fare_rule
     {
-        [PrimaryKey]
         public string Fare_id { get; set; }
         public string Contains_id { get; set; }
         public string Route_id { get; set; }

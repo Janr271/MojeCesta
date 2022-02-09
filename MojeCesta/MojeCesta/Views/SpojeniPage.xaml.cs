@@ -46,9 +46,7 @@ namespace MojeCesta.Views
         {
             if(!String.IsNullOrEmpty(ZeZastavky.Text) && !String.IsNullOrEmpty(NaZastavku.Text))
             {
-                DateTime cas = new DateTime(2022, 1, 1);
-                cas += Cas.Time;
-                Services.Spojeni.NajitSpojeni(Services.Database.NajitZastavku(ZeZastavky.Text).Result, Services.Database.NajitZastavku(NaZastavku.Text).Result, cas, Odjezd.IsChecked);
+                Services.Spojeni.NajitSpojeni(Services.Database.NajitZastavku(ZeZastavky.Text).Result, Services.Database.NajitZastavku(NaZastavku.Text).Result, Cas.Time, Odjezd.IsChecked);
             }
 
             Shell.Current.GoToAsync(nameof(VysledkySpojeniPage));

@@ -18,7 +18,7 @@ namespace MojeCesta
         protected async override void OnStart()
         {
            await Task.Run(Services.Database.Inicializovat);
-           //await Task.Run(Services.AktualizaceDat.ZkontrolovatAktualizace);
+           await Task.Run(Services.AktualizaceDat.ZkontrolovatAktualizace);
         }
 
         protected override void OnSleep()

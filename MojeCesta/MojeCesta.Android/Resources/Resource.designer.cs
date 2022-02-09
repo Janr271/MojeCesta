@@ -11806,9 +11806,6 @@ namespace MojeCesta.Droid
 			// aapt resource value: 0x7F070095
 			public const int vymena = 2131165333;
 			
-			// aapt resource value: 0x7F070096
-			public const int xamarin_logo = 2131165334;
-			
 			static Drawable()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();

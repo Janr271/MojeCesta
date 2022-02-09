@@ -71,8 +71,6 @@ namespace MojeCesta.Services
             } 
         }
 
-
-
         public static bool Stahnout(string cestaKZipu)
         {
             using (WebClient client = new WebClient())

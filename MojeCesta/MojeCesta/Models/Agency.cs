@@ -7,8 +7,7 @@ namespace MojeCesta.Models
     class Agency
     {
         [PrimaryKey]
-        [FieldConverter(ConverterKind.Int32)]
-        public int Agency_id { get; set; }
+        public string Agency_id { get; set; }
         [FieldQuoted]
         public string Agency_name { get; set; }
         [FieldQuoted]

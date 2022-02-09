@@ -1,26 +1,39 @@
 ﻿using System;
-using System.Linq;
 using System.IO;
 using System.IO.Compression;
-using System.Threading.Tasks;
-using MojeCesta.Models;
+using System.Net;
 using SQLite;
 using FileHelpers;
+using System.Threading.Tasks;
+using MojeCesta.Models;
+using System.Diagnostics;
 
-namespace MojeCesta.Services
+namespace NavigacniDataServer
 {
-
-    static class Database
+    class Program
     {
+        static void Main()
+        {
+            Stopwatch casovac = new();
+            casovac.Start();
+
+            Inicializovat().Wait(); // Inicializace databáze
+            Aktualizovat(); // Aktualizace databáze
+
+            casovac.Stop();
+            Console.WriteLine($"Aktualizace trvala {casovac.Elapsed.Seconds} sekund");
+        }
+
         private static SQLiteAsyncConnection db;
 
-        static readonly string cesta = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        static readonly string cestaKZipu = Path.Combine(cesta, "gtfs.zip");
-        static readonly string cestaKeSlozce = Path.Combine(cesta, "gtfs");
-        static readonly string cestaKDatabazi = Path.Combine(cesta, "gtfs.db3");
+        static readonly string cestaKZipu = "gtfs.zip";
+        static readonly string cestaKeSlozce = "gtfs";
+        static readonly string cestaKDatabazi = "gtfs.db3";
 
         public static async Task Inicializovat()
         {
+            Console.WriteLine("Inicializace!");
+
             db = new SQLiteAsyncConnection(cestaKDatabazi); // Vytvoření spojení s databází
             await db.EnableWriteAheadLoggingAsync();
 
@@ -42,20 +55,32 @@ namespace MojeCesta.Services
             await db.CreateTableAsync<Trip>();
         }
 
-        public static async Task Aktualizovat()
+        public static void Aktualizovat()
         {
             // Vymaže starou databázi
             SmazatDatabazi();
 
-            // Stáhnout soubor z internetu rozzipovat ho a odstranit původní zip
-            AktualizaceDat.Stahnout(cestaKZipu);
+            // Stáhnout soubor z internetu
+            if (!File.Exists(cestaKZipu))
+            {
+                using (WebClient client = new())
+                {
+                    Console.WriteLine("Stahování dat");
+                    client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+                }
+            }
+
+            // Rozzipovat ho a odstranit původní zip
             if (Directory.Exists(cestaKeSlozce))
             {
                 Directory.Delete(cestaKeSlozce, true);
             }
+
             ZipFile.ExtractToDirectory(cestaKZipu, cestaKeSlozce);
+
             File.Delete(cestaKZipu);
 
+            Console.WriteLine("Výroba databáze");
 
             // Naplnit databázi hodnotamy ze souborů
             Task[] databaze =
@@ -78,7 +103,7 @@ namespace MojeCesta.Services
                 NaplnitTabulku<Stop_time>("stop_times.txt")
             };
 
-            await Task.WhenAll(databaze);
+            Task.WhenAll(databaze).Wait();
         }
 
         private static async Task NaplnitTabulku<T>(string soubor)
@@ -87,11 +112,6 @@ namespace MojeCesta.Services
             var engine = new FileHelperEngine<T>();
             engine.Options.IgnoreFirstLines = 1;
             await db.RunInTransactionAsync(tran => { tran.InsertAll(engine.ReadFile(Path.Combine(cestaKeSlozce, soubor))); });
-        }
-
-        public static string[] SeznamZastavek()
-        {
-            return db.Table<Stop>().ToArrayAsync().Result.Select(a => a.Stop_name).ToArray();
         }
 
         public static async void SmazatDatabazi()
@@ -112,31 +132,6 @@ namespace MojeCesta.Services
             await db.DeleteAllAsync<Stop>();
             await db.DeleteAllAsync<Transfer>();
             await db.DeleteAllAsync<Trip>();
-        }
-
-        public static Task<Stop[]> NajitZastavky(string jmeno)
-        {
-            return db.Table<Stop>().Where(a => a.Stop_name.Contains(jmeno)).ToArrayAsync();
-        }
-        public static Task<Stop> NajitZastavku(string jmeno)
-        {
-            return db.Table<Stop>().FirstAsync(a => a.Stop_name.Contains(jmeno));
-        }
-        public static Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas)
-        {
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas).OrderBy(a => a.Departure_time).Take(50).ToArrayAsync();
-        }
-        public static Task<Trip> NajitLinku(string id)
-        {
-            return db.FindAsync<Trip>(id);
-        }
-        public static async Task<bool> LinkaObsahujeCil(string idLinky, string idCile, int posun)
-        {
-            return db.Table<Stop_time>().Where(a => a.Stop_id == idLinky && a.Trip_id == idCile && a.Stop_sequence > posun).CountAsync().Result != 0;
-        }
-        public static Task<Stop_time> NajitDalsiZastavku(string idLinky, string idZastavky, int posun)
-        {
-            return db.FindAsync<Stop_time>(a => a.Stop_id == idLinky && a.Trip_id == idZastavky && a.Stop_sequence > posun);
         }
     }
 }
