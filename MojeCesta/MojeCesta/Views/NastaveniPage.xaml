@@ -21,17 +21,18 @@
                        Grid.Row="0"
                        Grid.Column="0"/>
                 
-                <Switch 
-                    PropertyChanged="Rezim_PropertyChanged"
-                    Grid.Row="0"
-                    Grid.Column="1"/>
+                <Switch x:Name="Rezim"
+                        PropertyChanged="Rezim_PropertyChanged"
+                        Grid.Row="0"
+                        Grid.Column="1"/>
                 
                 <Label Text="Automatická aktualizace dat"
                        VerticalOptions="Center"
                        Grid.Row="1"
                        Grid.Column="0"/>
                 
-                <Switch PropertyChanged="Aktualizace_PropertyChanged"
+                <Switch x:Name="Aktualizace"
+                        PropertyChanged="Aktualizace_PropertyChanged"
                         Grid.Row="1"
                         Grid.Column="1"/>
                 
@@ -40,13 +41,14 @@
                        Grid.Row="2" 
                        Grid.Column="0"/>
                 
-                <Switch PropertyChanged="Wifi_PropertyChanged" 
+                <Switch x:Name="Wifi"
+                        PropertyChanged="Wifi_PropertyChanged" 
                         Grid.Row="2"
                         Grid.Column="1"/>
                 
                 <Button Text="Aktualizovat data"
                         Clicked="Aktualizovat_Clicked"
-                        BackgroundColor="{StaticResource Primary}"
+                        BackgroundColor="{StaticResource Barva}"
                         Margin="0,2,0,2"
                         Grid.Row="3"
                         Grid.Column="0"/>

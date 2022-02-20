@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace MojeCesta.Services
@@ -71,25 +69,31 @@ namespace MojeCesta.Services
             } 
         }
 
-        public static bool Stahnout(string cestaKZipu)
+        public static void Aktualizovat(bool okamzite)
         {
-            using (WebClient client = new WebClient())
+            ActivityIndicator aktivita = new ActivityIndicator { Color = Color.Blue };
+            // Okamže aktualizovat databázi
+            if (okamzite)
             {
-                client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+                aktivita.IsRunning = true;
+                aktivita.IsVisible = true;
+                aktivita.InputTransparent = true;
+                Database.Aktualizovat().Wait();
+                PosledniAktualizace = DateTime.Now;
             }
-            return true;
-        }
+            // Pokud poslední aktualizace neproběhla, nebo proběhla dávno a je zapnuta automatická aktualizace
+            else if (PosledniAktualizace == null || (AutomatickaAktualizace && DateTime.Now.Subtract(Frekvence) >= PosledniAktualizace))
+            {
+                aktivita.IsRunning = true;
+                aktivita.IsVisible = true;
+                aktivita.InputTransparent = true;
+                Database.Aktualizovat().Wait();
+                PosledniAktualizace = DateTime.Now;
+            }
 
-        public static async Task ZkontrolovatAktualizace() // Metoda se volá po startu a ověřuje, zda není potřeba aktualizovat databázi
-        {
-            if (AutomatickaAktualizace || PosledniAktualizace == null)
-            {
-                if(PosledniAktualizace == null || DateTime.Now.Subtract(Frekvence) >= PosledniAktualizace) // Pokud poslední aktualizace neproběhla, nebo proběhla dávno
-                {
-                    await Database.Aktualizovat();
-                    PosledniAktualizace = DateTime.Now;
-                }
-            }
+            aktivita.IsRunning = false;
+            aktivita.IsVisible = false;
+            aktivita.InputTransparent = false;
         }
     }
 }

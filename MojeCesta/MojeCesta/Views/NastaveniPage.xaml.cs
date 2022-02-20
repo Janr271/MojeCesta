@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
@@ -16,8 +13,11 @@ namespace MojeCesta.Views
         public NastaveniPage()
         {
             InitializeComponent();
-            AktualizaceDat.Text = DateTime.Now.ToString("d");
-            PlatnostDat.Text = DateTime.Now.AddDays(7).ToString("d");
+
+            Aktualizace.IsToggled = Services.AktualizaceDat.AutomatickaAktualizace;
+            Wifi.IsToggled = Services.AktualizaceDat.PouzeWifi;
+            AktualizaceDat.Text = Services.AktualizaceDat.PosledniAktualizace.ToString();
+            PlatnostDat.Text = Services.Database.InformaceODatabazi().Result.Feed_end_date.ToShortDateString();
             Verze.Text = VersionTracking.CurrentVersion;
         }
 
@@ -28,22 +28,17 @@ namespace MojeCesta.Views
 
         private void Aktualizace_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-
+            Services.AktualizaceDat.AutomatickaAktualizace = Aktualizace.IsToggled;
         }
 
         private void Wifi_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-
+            Services.AktualizaceDat.PouzeWifi = Wifi.IsToggled;
         }
 
-        private void Aktualizovat_Clicked(object sender, EventArgs e)
+        private async void Aktualizovat_Clicked(object sender, EventArgs e)
         {
-
-        }
-
-        public void OnAktualizovat()
-        {
-
+            await Task.Run(() => Services.AktualizaceDat.Aktualizovat(true));
         }
     }
 }

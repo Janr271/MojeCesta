@@ -15,7 +15,7 @@ namespace MojeCesta
             Routing.RegisterRoute(nameof(NastaveniPage), typeof(NastaveniPage));
             Routing.RegisterRoute(nameof(VysledkySpojeniPage), typeof(VysledkySpojeniPage));
             Routing.RegisterRoute(nameof(VysledkyOdjezduPage), typeof(VysledkyOdjezduPage));
+            Routing.RegisterRoute(nameof(HledaniPage), typeof(HledaniPage));
         }
-
     }
 }

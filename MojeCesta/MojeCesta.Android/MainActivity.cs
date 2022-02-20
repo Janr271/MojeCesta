@@ -5,6 +5,12 @@ using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
 
+#if DEBUG
+[assembly: Application(Debuggable = true)]
+#else
+[assembly: Application(Debuggable=false)]
+#endif
+
 namespace MojeCesta.Droid
 {
     [Activity(Label = "MojeCesta", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize )]

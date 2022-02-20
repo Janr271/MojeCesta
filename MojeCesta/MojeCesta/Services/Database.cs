@@ -2,10 +2,12 @@
 using System.Linq;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Threading.Tasks;
 using MojeCesta.Models;
 using SQLite;
 using FileHelpers;
+using System.Collections.Generic;
 
 namespace MojeCesta.Services
 {
@@ -40,6 +42,8 @@ namespace MojeCesta.Services
             await db.CreateTableAsync<Stop>();
             await db.CreateTableAsync<Transfer>();
             await db.CreateTableAsync<Trip>();
+            await db.CreateTableAsync<HistorieSpojeni>();
+            await db.CreateTableAsync<HistorieOdjezdu>();
         }
 
         public static async Task Aktualizovat()
@@ -48,7 +52,11 @@ namespace MojeCesta.Services
             SmazatDatabazi();
 
             // Stáhnout soubor z internetu rozzipovat ho a odstranit původní zip
-            AktualizaceDat.Stahnout(cestaKZipu);
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+            }
+
             if (Directory.Exists(cestaKeSlozce))
             {
                 Directory.Delete(cestaKeSlozce, true);
@@ -114,9 +122,14 @@ namespace MojeCesta.Services
             await db.DeleteAllAsync<Trip>();
         }
 
+        public static Task<Stop[]> NajitStanici(string jmeno)
+        {
+            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && a.Asw_stop_id == "1").Take(10).ToArrayAsync();
+        }
+
         public static Task<Stop[]> NajitZastavky(string jmeno)
         {
-            return db.Table<Stop>().Where(a => a.Stop_name.Contains(jmeno)).ToArrayAsync();
+            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && a.Location_type == Stop.LocationType.Stop).ToArrayAsync();
         }
         public static Task<Stop> NajitZastavku(string jmeno)
         {
@@ -124,19 +137,45 @@ namespace MojeCesta.Services
         }
         public static Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas)
         {
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas).OrderBy(a => a.Departure_time).Take(50).ToArrayAsync();
+            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time >= cas).Take(5).OrderBy(a => a.Departure_time).ToArrayAsync();
         }
-        public static Task<Trip> NajitLinku(string id)
+        public static Task<Trip> NajitSpoj(string id)
         {
             return db.FindAsync<Trip>(id);
         }
-        public static async Task<bool> LinkaObsahujeCil(string idLinky, string idCile, int posun)
+        public static Task<Route> NajitLinku(string id)
         {
-            return db.Table<Stop_time>().Where(a => a.Stop_id == idLinky && a.Trip_id == idCile && a.Stop_sequence > posun).CountAsync().Result != 0;
+            return db.FindAsync<Route>(id);
+        }
+        public static bool SpojObsahujeCil(string idSpoje, string idCile, int posun)
+        {
+            return db.Table<Stop_time>().Where(a => a.Stop_id == idSpoje && a.Trip_id == idCile && a.Stop_sequence > posun).CountAsync().Result != 0;
         }
         public static Task<Stop_time> NajitDalsiZastavku(string idLinky, string idZastavky, int posun)
         {
             return db.FindAsync<Stop_time>(a => a.Stop_id == idLinky && a.Trip_id == idZastavky && a.Stop_sequence > posun);
+        }
+
+        public static Task<List<HistorieOdjezdu>> NacistOdjezdy()
+        {
+            return db.Table<HistorieOdjezdu>().Take(50).ToListAsync();
+        }
+        public static Task<List<HistorieSpojeni>> NacistSpojeni()
+        {
+            return db.Table<HistorieSpojeni>().Take(50).ToListAsync();
+        }
+        public static async Task UlozitSpojeni(HistorieSpojeni spojeni)
+        {
+            await db.InsertAsync(spojeni);
+        }
+        public static async Task UlozitOdjezd(HistorieOdjezdu odjezd)
+        {
+            await db.InsertAsync(odjezd);
+        }
+
+        public static Task<Feed_info> InformaceODatabazi()
+        {
+            return db.GetAsync<Feed_info>(0);
         }
     }
 }

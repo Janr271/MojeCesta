@@ -4,7 +4,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Feed_info
+    public class Feed_info
     {
         [FieldQuoted]
         public string Feed_publisher_name { get; set; } 

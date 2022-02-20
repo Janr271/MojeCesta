@@ -3,7 +3,7 @@
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Shape
+    public class Shape
     {
         public string Shape_id { get; set; } 
         public double Shape_pt_lat { get; set; }

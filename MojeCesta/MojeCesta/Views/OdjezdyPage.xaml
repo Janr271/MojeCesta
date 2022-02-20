@@ -1,8 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
              x:Class="MojeCesta.Views.OdjezdyPage"
              Title="Moje Cesta">
+    
+    <ContentPage.BindingContext>
+        <viewmodels:OdjezdyViewModel/>
+    </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Icon="kolo.png" Clicked="Nastaveni_Clicked"/>
@@ -15,26 +20,31 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
-            
-            <Entry x:Name="ZeZastavky"
+
+
+            <Entry x:Name="ZeZastavkyO"
+                   Text="{Binding ZeZastavky}"
                    Placeholder="Výchozí zastávka"
                    Grid.Row="0"
                    Grid.Column="0"
-                   Grid.ColumnSpan="2"/>
-            
-            <TimePicker x:Name="Cas" 
+                   Grid.ColumnSpan="2"
+                   Focused="ZeZastavky_Focused"/>
+
+            <TimePicker x:Name="Cas"
+                        Time="{Binding Cas}"
                         Format="t"
                         Grid.Row="1"
                         Grid.Column="0"/>
             
             <DatePicker x:Name="Datum"
+                        Date="{Binding Datum}"
                         Format="d"
                         Grid.Row="1"
                         Grid.Column="1"/>
             
             <Button Text="Hledat"
                     Clicked="Hledat_Clicked"
-                    BackgroundColor="{StaticResource Primary}"
+                    BackgroundColor="{StaticResource Barva}"
                     Grid.Row="2"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"/>
@@ -42,6 +52,7 @@
             <ListView x:Name="Historie"
                       Header="Historie"
                       ItemTapped="Historie_ItemTapped"
+                      ItemsSource="{Binding Historie}"
                       Grid.Row="3"
                       Grid.Column="0"
                       Grid.ColumnSpan="2"/>

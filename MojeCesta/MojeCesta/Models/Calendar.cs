@@ -5,7 +5,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Calendar
+    public class Calendar
     {
         [PrimaryKey]
         public string Service_id { get; set; }

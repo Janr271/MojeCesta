@@ -3,7 +3,7 @@
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Route_sub_agency
+    public class Route_sub_agency
     {
         public string Route_id { get; set; } 
         public int? Route_licence_number { get; set; } 

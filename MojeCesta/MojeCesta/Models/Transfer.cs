@@ -4,7 +4,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Transfer
+    public class Transfer
     {
         public string From_stop_id { get; set; } 
         public string To_stop_id { get; set; } 

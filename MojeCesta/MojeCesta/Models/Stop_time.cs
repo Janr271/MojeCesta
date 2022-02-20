@@ -4,7 +4,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Stop_time
+    public class Stop_time
     {
         public string Trip_id { get; set; }
         [FieldConverter(typeof(TimeConverter))]

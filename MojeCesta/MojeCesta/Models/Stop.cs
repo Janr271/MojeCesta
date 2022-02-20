@@ -4,7 +4,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Stop
+    public class Stop
     {
         [PrimaryKey]
         public string Stop_id { get; set; } 
@@ -37,6 +37,11 @@ namespace MojeCesta.Models
             Unknown = 0,
             Allowed = 1,
             Prohibited = 2
+        }
+
+        public override string ToString()
+        {
+            return Stop_name;
         }
     }
 }

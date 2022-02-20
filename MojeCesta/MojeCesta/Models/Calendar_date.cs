@@ -5,7 +5,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Calendar_date
+    public class Calendar_date
     {
         public string Service_id { get; set; }
         [FieldConverter(ConverterKind.Date, "yyyyMMdd")]

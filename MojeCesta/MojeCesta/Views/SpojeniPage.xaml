@@ -1,88 +1,121 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
              x:Class="MojeCesta.Views.SpojeniPage"
              Title="Moje Cesta">
+
+    <ContentPage.BindingContext>
+        <viewmodels:SpojeniViewModel/>
+    </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Icon="kolo.png" 
                      Clicked="Nastaveni_Clicked"/>
     </ContentPage.ToolbarItems>
+    
     <ContentPage.Content>
+        
         <Grid Margin="20,5,20,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="0.5*"/>
-                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="0.75*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="4*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
             <ImageButton Source="vymena.png"
-                             Clicked="Zmena_Clicked"
-                             Grid.Row="0"
-                             Grid.Column="0"
-                             Grid.RowSpan="2"
-                             />
+                         Clicked="Zmena_Clicked"
+                         Grid.Row="0"
+                         Grid.Column="0"
+                         Grid.RowSpan="2"/>
 
-            <Entry     x:Name="ZeZastavky"
+            <Entry     x:Name="ZeZastavkyS"
+                       Focused="ZeZastavkyS_Focused"
                        Placeholder="Výchozí zastávka"
+                       Text="{Binding ZeZastavky}"
                        Grid.Row="0"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"/>
-            <Entry     x:Name="NaZastavku"
+            
+            <Entry     x:Name="NaZastavkuS"
+                       Focused="NaZastavkuS_Focused"
                        Placeholder="Cílová zastávka"
+                       Text="{Binding NaZastavku}"
                        Grid.Row="1"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"/>
 
             <TimePicker x:Name="Cas" 
-                            Format="t"
-                            Grid.Row="2"
-                            Grid.Column="1"/>
+                        Format="t"
+                        Time="{Binding Cas}"
+                        Grid.Row="2"
+                        Grid.Column="1"/>
 
             <DatePicker x:Name="Datum"
-                            Format="d"
-                            Grid.Row="2"
-                            Grid.Column="2"/>
+                        Format="d"
+                        Date="{Binding Datum}"
+                        Grid.Row="2"
+                        Grid.Column="2"/>
 
-            <Button Text="Upřesnit" 
-                        Clicked="Upresnit_Clicked"
-                        BackgroundColor="{StaticResource Primary}"
-                        Grid.Row="3"
+            <Label Text="{Binding PrestupyText}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="End"
+                       Grid.Row="3"
+                       Grid.Column="1"/>
+
+            <Stepper    x:Name="PocetPrestupu"
+                        Grid.Row="4"
                         Grid.Column="1"
-                         Grid.RowSpan="2"/>
+                        Minimum="0"
+                        Maximum="10"
+                        Value="{Binding PocetPrestupu}"/>
+                
 
             <RadioButton x:Name="Odjezd"
-                            GroupName="Parametr"
-                             Content="Odjezd"
-                             Grid.Row="3"
-                             Grid.Column="2"/>
+                         GroupName="Parametr"
+                         Value="{Binding Odjezd}"
+                         Content="Odjezd"
+                         Grid.Row="3"
+                         Grid.Column="2"/>
 
             <RadioButton GroupName="Parametr" 
-                             Content="Příjezd"
-                             Grid.Row="4"
-                             Grid.Column="2"/>
+                         Content="Příjezd"
+                         Grid.Row="4"
+                         Grid.Column="2"/>
 
             <Button Text="Hledat"
-                        Clicked="Hledat_Clicked"
-                        BackgroundColor="{StaticResource Primary}"
-                        Grid.Row="5"
-                        Grid.Column="1"
-                         Grid.ColumnSpan="2"/>
+                    Clicked="Hledat_Clicked"
+                    BackgroundColor="{StaticResource Barva}"
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"/>
 
             <ListView Header="Historie"
-                          ItemTapped="Historie_Tapped"
-                          Grid.Row="6"
-                          Grid.Column="0"
-                          Grid.ColumnSpan="3"/>
+                      ItemTapped="Historie_Tapped"
+                      ItemsSource="{Binding Historie}"
+                      Grid.Row="6"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="3">
+                
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout>
+                            <Label Text="{Binding Item1}" />
+                            <Label Text="{Binding Item2}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                
+            </ListView>
 
         </Grid>
     </ContentPage.Content>

@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <SignAssembly>true</SignAssembly>
+    <Version>1.5.0</Version>
+    <Authors>Jan Rott</Authors>
+    <Company>SSPŠaG</Company>
+    <Description>Offline vyhledávač spojení v rámci pražské integrované dopravy.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Views\HledaniPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\NastaveniPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
@@ -38,6 +46,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\" />
+    <Compile Update="Views\HledaniPage.xaml.cs">
+      <DependentUpon>HledaniPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ using FileHelpers;
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    class Level
+    public class Level
     {
         [PrimaryKey]
         public string Level_id { get; set; } 
