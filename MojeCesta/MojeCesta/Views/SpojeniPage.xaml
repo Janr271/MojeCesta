@@ -10,7 +10,7 @@
     </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Icon="kolo.png" 
+        <ToolbarItem Icon="settings_black.png" 
                      Clicked="Nastaveni_Clicked"/>
     </ContentPage.ToolbarItems>
     
@@ -32,7 +32,7 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
-            <ImageButton Source="vymena.png"
+            <ImageButton Source="swap_black.png"
                          Clicked="Zmena_Clicked"
                          Grid.Row="0"
                          Grid.Column="0"
@@ -81,6 +81,7 @@
                 
 
             <RadioButton x:Name="Odjezd"
+                         
                          GroupName="Parametr"
                          Value="{Binding Odjezd}"
                          Content="Odjezd"

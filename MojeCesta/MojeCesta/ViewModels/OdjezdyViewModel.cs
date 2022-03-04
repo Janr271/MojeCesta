@@ -108,7 +108,7 @@ namespace MojeCesta.ViewModels
             for (int i = 0; i < stanice.Length; i++)
             {
                 OdjezdyZeStanice novaStanice = new OdjezdyZeStanice($"{stanice[i].Stop_name} {stanice[i].Platform_code}");
-                Stop_time[] odjezdy = Database.NajitOdjezdy(stanice[i], Cas).Result;
+                Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas);
 
                 // Najít odjezdy z vybraného nástupiště
                 for (int y = 0; y < odjezdy.Length; y++)

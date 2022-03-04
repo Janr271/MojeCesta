@@ -8,6 +8,10 @@
     <Authors>Jan Rott</Authors>
     <Company>SSPŠaG</Company>
     <Description>Offline vyhledávač spojení v rámci pražské integrované dopravy.</Description>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl />
+    <ApplicationIcon>Ikona.ico</ApplicationIcon>
+    <Win32Resource />
   </PropertyGroup>
 
   <ItemGroup>
@@ -49,5 +53,12 @@
     <Compile Update="Views\HledaniPage.xaml.cs">
       <DependentUpon>HledaniPage.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\MojeCesta.Android\Resources\mipmap-xxhdpi\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>

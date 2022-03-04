@@ -10,7 +10,8 @@
     </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Icon="kolo.png" Clicked="Nastaveni_Clicked"/>
+        <ToolbarItem Icon="settings_black.png" 
+                     Clicked="Nastaveni_Clicked"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid Margin="20,5,20,5">

@@ -47,7 +47,7 @@ namespace MojeCesta.ViewModels
                 if (naZastavku == value)
                     return;
 
-                zeZastavky = value;
+                naZastavku = value;
                 OnPropertyChanged(nameof(NaZastavku));
             }
         }
@@ -163,7 +163,24 @@ namespace MojeCesta.ViewModels
 
         public async void NajitSpojeni()
         {
-            
+            // TODO: dodělat
+            Stop[] stanice = Database.NajitZastavky(ZeZastavky).Result;
+
+            List<Trip> spoje = new List<Trip>();
+
+            // Najít všechny nástupiště zvolené stanice
+            for (int i = 0; i < stanice.Length; i++)
+            {
+                Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas);
+
+                // Najít odjezdy z vybraného nástupiště
+                for (int y = 0; y < odjezdy.Length; y++)
+                {
+                    spoje.Add(await Database.NajitSpoj(odjezdy[y].Trip_id));
+                }
+
+            }
+
 
         }
     }
