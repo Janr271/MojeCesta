@@ -1,5 +1,8 @@
 ﻿using System;
 using Xamarin.Forms;
+using Xamarin.Essentials;
+using System.Linq;
+using MojeCesta.Models;
 
 namespace MojeCesta.Services
 {
@@ -69,31 +72,37 @@ namespace MojeCesta.Services
             } 
         }
 
-        public static void Aktualizovat(bool okamzite)
+        public static void Aktualizovat(bool manualne)
         {
-            ActivityIndicator aktivita = new ActivityIndicator { Color = Color.Blue };
-            // Okamže aktualizovat databázi
-            if (okamzite)
+            // Spustit aktualizaci pokud
+            // 1. Uživatel si aktualizaci vyvolal ručně
+            // 2. Aplikace ještě nemá žádnou databázi
+            // 3. Je zapnuta automatická aktualizace a uběhla stanovená doba od poslední aktualizace 
+            if (manualne || PosledniAktualizace == null || (AutomatickaAktualizace && DateTime.Now.Subtract(Frekvence) >= PosledniAktualizace))
             {
-                aktivita.IsRunning = true;
-                aktivita.IsVisible = true;
-                aktivita.InputTransparent = true;
-                Database.Aktualizovat().Wait();
-                PosledniAktualizace = DateTime.Now;
-            }
-            // Pokud poslední aktualizace neproběhla, nebo proběhla dávno a je zapnuta automatická aktualizace
-            else if (PosledniAktualizace == null || (AutomatickaAktualizace && DateTime.Now.Subtract(Frekvence) >= PosledniAktualizace))
-            {
-                aktivita.IsRunning = true;
-                aktivita.IsVisible = true;
-                aktivita.InputTransparent = true;
-                Database.Aktualizovat().Wait();
-                PosledniAktualizace = DateTime.Now;
+                // Uzamknout UI
+                GlobalniPromenne.Uzamknout();
+
+                if(Connectivity.NetworkAccess == NetworkAccess.Internet)
+                {
+                    if (!PouzeWifi || Connectivity.ConnectionProfiles.Contains(ConnectionProfile.WiFi))
+                    {
+                        Database.Aktualizovat().Wait();
+                        PosledniAktualizace = DateTime.Now;
+                    }
+                    else
+                    {
+                        GlobalniPromenne.Oznameni("Zařízení není připojeno k Wifi!");
+                    }
+                }
+                else
+                {
+                    GlobalniPromenne.Oznameni("Zařízení není připojeno k internetu!");
+                }
             }
 
-            aktivita.IsRunning = false;
-            aktivita.IsVisible = false;
-            aktivita.InputTransparent = false;
+            // Odemknout UI
+            GlobalniPromenne.Odemknout();
         }
     }
 }

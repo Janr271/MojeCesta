@@ -8,6 +8,7 @@
             <Entry x:Name="Hledani"
                  Placeholder="Název zastávky"
                  TextChanged="Hledani_Changed"
+                 Completed="Hledani_Completed"
                 />
             <ListView x:Name="SeznamStanic"
                   ItemTapped="SeznamStanic_Tapped"

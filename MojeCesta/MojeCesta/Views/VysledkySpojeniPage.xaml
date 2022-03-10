@@ -1,14 +1,77 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
+             xmlns:model="clr-namespace:MojeCesta.Models"
              x:Class="MojeCesta.Views.VysledkySpojeniPage"
              Title="Spojení">
+
+    <ContentPage.BindingContext>
+        <viewmodels:SpojeniViewModel/>
+    </ContentPage.BindingContext>
     
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <ListView ItemsSource="{Binding Vysledky}" SelectionMode="None" RowHeight="320" SeparatorVisibility="None" >
+
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:SpojeniMeziStanicemi">
+                    <ViewCell>
+
+                        <Frame>
+                            <StackLayout Margin="10">
+
+                                <ListView ItemsSource="{Binding .}" SelectionMode="None" >
+
+                                    <ListView.Header>
+                                        <StackLayout Orientation="Horizontal">
+                                            <Label Margin="5" Text="{Binding DoOdjezdu}" HorizontalOptions="StartAndExpand" />
+                                            <Label Margin="5" Text="{Binding Metrika}" HorizontalOptions="End" />
+                                        </StackLayout>
+                                    </ListView.Header>
+
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="model:Spojeni">
+                                            <ViewCell>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="2*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Margin="5" Text="{Binding Linka}"
+                                                           Grid.Column="0" Grid.Row="0"/>
+                                                    <Label Margin="5" Text="{Binding Smer}"
+                                                           Grid.Column="1" Grid.Row="0"/>
+                                                    
+                                                    <Label Margin="5" Text="{Binding ZeZastavky}"
+                                                           Grid.Column="1" Grid.Row="1"/>
+                                                    <Label Margin="5" Text="{Binding Odjezd}" VerticalOptions="End"
+                                                           Grid.Column="2" Grid.Row="1"/>
+
+                                                    <Label Margin="5" Text="{Binding NaZastavku}"
+                                                           Grid.Column="1" Grid.Row="2"/>
+                                                    <Label Margin="5" Text="{Binding Prijezd}" VerticalOptions="End"
+                                                           Grid.Column="2" Grid.Row="2"/>
+
+                                                    <Label Margin="5" Text="{Binding Prestup}"
+                                                           Grid.Column="1" Grid.Row="3"/>
+                                                </Grid>
+
+                                            </ViewCell>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+
+                                </ListView>
+
+                            </StackLayout>
+                        </Frame>
+
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
     </ContentPage.Content>
 </ContentPage>

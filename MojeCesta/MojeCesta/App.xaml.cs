@@ -15,10 +15,8 @@ namespace MojeCesta
             MainPage = new AppShell();
         }
 
-        protected async override void OnStart()
+        protected override void OnStart()
         {
-           await Services.Database.Inicializovat();
-           await Task.Run(() => Services.AktualizaceDat.Aktualizovat(false));
         }
 
         protected override void OnSleep()

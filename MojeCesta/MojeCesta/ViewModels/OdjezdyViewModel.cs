@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.ComponentModel;
 
 using Xamarin.Forms;
@@ -7,6 +6,7 @@ using MojeCesta.Models;
 using MojeCesta.Services;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MojeCesta.ViewModels
 {
@@ -15,13 +15,14 @@ namespace MojeCesta.ViewModels
         public OdjezdyViewModel()
         {
             Hledat = new Command(() => NajitOdjezdy());
+            Task.Run(() => AktualizovatHistorii());
         }
 
+        private bool aktivita;
         private string zeZastavky = string.Empty;
         private DateTime datum;
         private TimeSpan cas;
-        private string[] historie;
-        private List<OdjezdyZeStanice> vysledky;
+        private List<HistorieOdjezdu> historie;
 
         public string ZeZastavky
         {
@@ -59,24 +60,44 @@ namespace MojeCesta.ViewModels
                 OnPropertyChanged(nameof(Cas));
             }
         }
-        public string[] Historie 
+
+        public bool Aktivita
+        {
+            get => aktivita;
+            set
+            {
+                if (aktivita == value)
+                    return;
+
+                aktivita = value;
+                OnPropertyChanged(nameof(Aktivita));
+            }
+        }
+        public List<HistorieOdjezdu> Historie 
         {
             get
             {
-                //AktualizovatHistorii();
                 return historie;
             }
-            private set { historie = value; }
+            private set 
+            {
+                if (historie == value)
+                    return;
+
+                historie = value; 
+                OnPropertyChanged(nameof(Historie)); 
+            }
         }
         public List<OdjezdyZeStanice> Vysledky
         {
-            get => vysledky;
+            get => GlobalniPromenne.VysledkyOdjezdu;
             set
             {
-                if (vysledky == value)
+                if (GlobalniPromenne.VysledkyOdjezdu == value)
                     return;
 
-                vysledky = value;
+                GlobalniPromenne.VysledkyOdjezdu = value;
+
                 OnPropertyChanged(nameof(Vysledky));
             }
         }
@@ -91,42 +112,55 @@ namespace MojeCesta.ViewModels
 
         public async void AktualizovatHistorii()
         {
-            List<HistorieOdjezdu> odjezdy = await Database.NacistOdjezdy();
-
-            if(odjezdy != null)
-            {
-                Historie = odjezdy.Select(a => a.ZeZastavky).ToArray();
-            }
+            Historie = await Database.NacistOdjezdy();
         }
 
         public async void NajitOdjezdy()
         {
+            // Spustit indikátor o aktivitě pro uživatele
+            Aktivita = true;
+
             Stop[] stanice = Database.NajitZastavky(ZeZastavky).Result;
             List<OdjezdyZeStanice> noveVysledky = new List<OdjezdyZeStanice>();
 
             // Najít všechny nástupiště zvolené stanice
             for (int i = 0; i < stanice.Length; i++)
             {
-                OdjezdyZeStanice novaStanice = new OdjezdyZeStanice($"{stanice[i].Stop_name} {stanice[i].Platform_code}");
                 Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas);
+                List<Odjezd> seznamOdjezdu = new List<Odjezd>();
 
-                // Najít odjezdy z vybraného nástupiště
+                // Najít odjezdy z vybraného nástupiště nebo vypsat chybu
                 for (int y = 0; y < odjezdy.Length; y++)
                 {
                     Trip spoj = await Database.NajitSpoj(odjezdy[y].Trip_id);
                     Route linka = await Database.NajitLinku(spoj.Route_id);
-                    novaStanice.Add(new Odjezd(linka.Route_short_name, $"směr {spoj.Trip_headsign}", odjezdy[y].Departure_time.ToString("t")));
+                    seznamOdjezdu.Add(new Odjezd(linka.Route_short_name, $"směr {spoj.Trip_headsign}", odjezdy[y].Departure_time.ToString(@"hh\:mm")));
+                }
+                if(seznamOdjezdu.Count == 0)
+                {
+                    seznamOdjezdu.Add(new Odjezd("", "Nebyly nalezeny žádné odjezdy", ""));
                 }
 
-                noveVysledky.Add(novaStanice);
+                noveVysledky.Add(new OdjezdyZeStanice($"{stanice[i].Stop_name} {stanice[i].Platform_code}", seznamOdjezdu));
+            }
+
+            // Vypsat chybu v případě, že nebyly nalezeny žádné odjezdy
+            if(noveVysledky.Count == 0)
+            {
+                noveVysledky.Add(new OdjezdyZeStanice("Nebyly nalezeny žádné výsledky", new List<Odjezd>()));
             }
 
             Vysledky = noveVysledky;
 
-            // Uložit dotaz do historie
-            await Database.UlozitOdjezd(new HistorieOdjezdu(ZeZastavky, Datum, Cas));
-            OnPropertyChanged(nameof(Historie));
+            // Přejít na okno s výsledky
+            await Device.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(nameof(Views.VysledkyOdjezduPage)));
 
+            // Uložit dotaz do historie a aktualizovat seznam
+            await Database.UlozitOdjezd(new HistorieOdjezdu(ZeZastavky, Datum, Cas));
+            await Task.Run(() => AktualizovatHistorii());
+
+            // Vypnout indikaci aktivity
+            Aktivita = false;
         }
     }
 }

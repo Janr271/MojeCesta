@@ -17,7 +17,6 @@ namespace MojeCesta.Views
         {
             InitializeComponent();
 
-            ZeZastavkyO.Unfocus();
             Datum.MinimumDate = DateTime.Now;
             Cas.Time = DateTime.Now.TimeOfDay;
             odjezdyViewModel = BindingContext as ViewModels.OdjezdyViewModel;
@@ -46,9 +45,8 @@ namespace MojeCesta.Views
                 return;
             }
 
-            await Shell.Current.GoToAsync(nameof(VysledkyOdjezduPage));
-
             await Task.Run(() => odjezdyViewModel.NajitOdjezdy());
+
         }
 
         private void Nastaveni_Clicked(object sender, EventArgs e)
@@ -58,7 +56,7 @@ namespace MojeCesta.Views
 
         private void Historie_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            odjezdyViewModel.ZeZastavky = e.Item.ToString();
+            odjezdyViewModel.ZeZastavky = ((Models.HistorieOdjezdu)e.Item).ZeZastavky;
             Hledat_Clicked(sender, EventArgs.Empty);
         }
 

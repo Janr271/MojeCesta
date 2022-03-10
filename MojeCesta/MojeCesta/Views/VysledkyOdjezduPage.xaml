@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
+             xmlns:model="clr-namespace:MojeCesta.Models"
+             
              x:Class="MojeCesta.Views.VysledkyOdjezduPage"
              Title="Odjezdy">
 
@@ -10,27 +12,46 @@
     </ContentPage.BindingContext>
 
     <ContentPage.Content>
-        <StackLayout>
-            <ListView ItemsSource="{Binding Vysledky}"
-          IsGroupingEnabled="true">
-                <ListView.GroupHeaderTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Label Text="{Binding NazevStanice}" />
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.GroupHeaderTemplate>
 
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Label Text="{Binding Linka}" />
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-           
-        </StackLayout>
-       
+        <ListView ItemsSource="{Binding Vysledky}" SelectionMode="None" RowHeight="320" SeparatorVisibility="None" >
+
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:OdjezdyZeStanice">
+                    <ViewCell>
+                        
+                    <Frame>
+                        <StackLayout Margin="10">
+                            
+                            <ListView ItemsSource="{Binding .}" SelectionMode="None" >
+
+                                    <ListView.Header>
+                                        <Label FontSize="Large" Margin="0,0,0,15" Text="{Binding NazevStanice}"/>
+                                    </ListView.Header>
+                                
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="model:Odjezd">
+                                            <ViewCell>
+
+                                                <StackLayout Orientation="Horizontal" VerticalOptions="Center">
+                                                    <Label Text="{Binding Linka}" FontAttributes="Bold" />
+                                                    <Label Text="{Binding Smer}" HorizontalOptions="StartAndExpand" />
+                                                    <Label Text="{Binding Cas}" HorizontalOptions="End" />
+                                                </StackLayout>
+
+                                            </ViewCell>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                
+                            </ListView>
+                            
+                        </StackLayout>
+                    </Frame>
+                        
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            
+        </ListView>
+
     </ContentPage.Content>
 </ContentPage>

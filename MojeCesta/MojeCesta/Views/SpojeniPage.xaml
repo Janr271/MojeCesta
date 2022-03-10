@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
+             xmlns:models="clr-namespace:MojeCesta.Models"
              x:Class="MojeCesta.Views.SpojeniPage"
              Title="Moje Cesta">
 
@@ -22,7 +23,8 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="0.5*"/>
-                <RowDefinition Height="0.75*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
@@ -100,19 +102,30 @@
                     Grid.Column="1"
                     Grid.ColumnSpan="2"/>
 
-            <ListView Header="Historie"
-                      ItemTapped="Historie_Tapped"
+            <Label FontSize="Medium" 
+                   Text="Historie"
+                   VerticalOptions="Center"
+                   Grid.Row="6"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="3"/>
+
+            <ActivityIndicator IsRunning="{Binding Aktivita}" Grid.Row="6" Grid.ColumnSpan="3" HorizontalOptions="Center"/>
+
+            <ListView ItemTapped="Historie_Tapped"
                       ItemsSource="{Binding Historie}"
-                      Grid.Row="6"
+                      SeparatorVisibility="None"
+                      Grid.Row="7"
                       Grid.Column="0"
                       Grid.ColumnSpan="3">
                 
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout>
-                            <Label Text="{Binding Item1}" />
-                            <Label Text="{Binding Item2}" />
-                        </StackLayout>
+                    <DataTemplate x:DataType="models:HistorieSpojeni">
+                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}">
+                            <StackLayout Margin="5">
+                                <Label Text="{Binding ZeZastavky}" />
+                                <Label Text="{Binding NaZastavku}" />
+                            </StackLayout>
+                        </Frame>
                     </DataTemplate>
                 </ListView.ItemTemplate>
                 

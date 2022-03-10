@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace MojeCesta.Models
 {
     public class OdjezdyZeStanice : List<Odjezd>
     {
-        public OdjezdyZeStanice(string nazevStanice)
+        public string NazevStanice { get; set; }
+        public OdjezdyZeStanice(string nazevStanice, List<Odjezd> odjezdy) : base(odjezdy)
         {
             NazevStanice = nazevStanice;
         }
-        public string NazevStanice { get; set; }
-        public List<Odjezd> Odjezdy => this;
     }
 
     public class Odjezd

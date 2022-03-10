@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite;
+using System;
 
 namespace MojeCesta.Models
 {
@@ -15,6 +16,8 @@ namespace MojeCesta.Models
             Cas = cas;
         }
 
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
         public string ZeZastavky { get; set; }
         public DateTime Datum { get; set; }
         public TimeSpan Cas { get; set; }

@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using MojeCesta.Services;
-using MojeCesta.Models;
 
 namespace MojeCesta.Views
 {
@@ -31,21 +24,42 @@ namespace MojeCesta.Views
             SeznamStanic.ItemsSource = Database.NajitStanici(Hledani.Text).Result;
         }
 
-        private async void SeznamStanic_Tapped(object sender, ItemTappedEventArgs e)
+        private async void Hledani_Completed(object sender, System.EventArgs e)
         {
-            if (Rodic is OdjezdyPage)
+            if (Rodic is OdjezdyPage odjezdy)
             {
-                ((OdjezdyPage)Rodic).odjezdyViewModel.ZeZastavky = e.Item.ToString();
+                odjezdy.odjezdyViewModel.ZeZastavky = Hledani.Text;
             }
-            else if (Rodic is SpojeniPage)
+            else if (Rodic is SpojeniPage spojeni)
             {
                 if (NaZastavku)
                 {
-                    ((SpojeniPage)Rodic).spojeniViewModel.NaZastavku = e.Item.ToString();
+                    spojeni.spojeniViewModel.NaZastavku = Hledani.Text;
                 }
                 else
                 {
-                    ((SpojeniPage)Rodic).spojeniViewModel.ZeZastavky = e.Item.ToString();
+                    spojeni.spojeniViewModel.ZeZastavky = Hledani.Text;
+                }
+            }
+
+            await Navigation.PopModalAsync(false);
+        }
+
+        private async void SeznamStanic_Tapped(object sender, ItemTappedEventArgs e)
+        {
+            if (Rodic is OdjezdyPage odjezdy)
+            {
+                odjezdy.odjezdyViewModel.ZeZastavky = e.Item.ToString();
+            }
+            else if (Rodic is SpojeniPage spojeni)
+            {
+                if (NaZastavku)
+                {
+                    spojeni.spojeniViewModel.NaZastavku = e.Item.ToString();
+                }
+                else
+                {
+                    spojeni.spojeniViewModel.ZeZastavky = e.Item.ToString();
                 }
             }
 
@@ -55,6 +69,7 @@ namespace MojeCesta.Views
         public void VybratEntry()
         {
             Hledani.Focus();
+            Hledani.CursorPosition = Hledani.Text.Length;
         }
     }
 }

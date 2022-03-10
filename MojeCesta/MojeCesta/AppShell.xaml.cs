@@ -3,7 +3,7 @@ using Xamarin.Forms;
 
 namespace MojeCesta
 {
-    public partial class AppShell : Xamarin.Forms.Shell
+    public partial class AppShell : Shell
     {
         public AppShell()
         {
@@ -16,6 +16,7 @@ namespace MojeCesta
             Routing.RegisterRoute(nameof(VysledkySpojeniPage), typeof(VysledkySpojeniPage));
             Routing.RegisterRoute(nameof(VysledkyOdjezduPage), typeof(VysledkyOdjezduPage));
             Routing.RegisterRoute(nameof(HledaniPage), typeof(HledaniPage));
+            Routing.RegisterRoute(nameof(AktualizacePage), typeof(AktualizacePage));
         }
     }
 }

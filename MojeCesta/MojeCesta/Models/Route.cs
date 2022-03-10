@@ -6,6 +6,7 @@ namespace MojeCesta.Models
     [DelimitedRecord(",")]
     public class Route
     {
+        [PrimaryKey]
         public string Route_id { get; set; } 
         public string Agency_id { get; set; } 
         public string Route_short_name { get; set; } 

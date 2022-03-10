@@ -1,124 +1,135 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
              x:Class="MojeCesta.Views.NastaveniPage"
              Title="Nastavení">
+    <ContentPage.BindingContext>
+        <viewmodels:NastaveniViewModel/>
+    </ContentPage.BindingContext>
 
     <ContentPage.Content>
-        <StackLayout >
-            <Grid Margin="15,5,15,5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="6*"/>
-                </Grid.RowDefinitions>
-                <Label Text="Tmavý režim"
+        <StackLayout Background="Gray">
+            <Frame>
+                <Grid Margin="15,5,15,5" VerticalOptions="Start">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="4*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Text="Tmavý režim"
                        VerticalOptions="Center"
                        Grid.Row="0"
                        Grid.Column="0"/>
-                
-                <Switch x:Name="Rezim"
-                        PropertyChanged="Rezim_PropertyChanged"
+
+                    <Switch IsToggled="{Binding Rezim}"
                         Grid.Row="0"
                         Grid.Column="1"/>
-                
-                <Label Text="Automatická aktualizace dat"
+
+                    <Label Text="Automatická aktualizace dat"
                        VerticalOptions="Center"
                        Grid.Row="1"
-                       Grid.Column="0"/>
-                
-                <Switch x:Name="Aktualizace"
-                        PropertyChanged="Aktualizace_PropertyChanged"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"/>
+
+                    <Switch IsToggled="{Binding AutomatickaAktualizace}"
                         Grid.Row="1"
                         Grid.Column="1"/>
-                
-                <Label Text="Aktualizovat pouze přes WiFi"
+
+                    <Label Text="Aktualizovat pouze přes WiFi"
                        VerticalOptions="Center"
                        Grid.Row="2" 
-                       Grid.Column="0"/>
-                
-                <Switch x:Name="Wifi"
-                        PropertyChanged="Wifi_PropertyChanged" 
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"/>
+
+                    <Switch IsToggled="{Binding PouzeWifi}"
                         Grid.Row="2"
                         Grid.Column="1"/>
-                
-                <Button Text="Aktualizovat data"
-                        Clicked="Aktualizovat_Clicked"
-                        BackgroundColor="{StaticResource Barva}"
+
+                    <Button Text="Aktualizovat data"
+                        Command="{Binding Aktualizovat}"
                         Margin="0,2,0,2"
                         Grid.Row="3"
                         Grid.Column="0"/>
-                
-                <Label Text="Poslední aktualizace dat"
+
+                    <Label Text="Poslední aktualizace dat"
                        VerticalOptions="Center"
                        Grid.Row="4"
                        Grid.Column="0"/>
-                
-                <Label x:Name="AktualizaceDat"
+
+                    <Label Text="{Binding PosledniAktualizace}"
                        VerticalOptions="Center"
                        HorizontalOptions="End"
                        Margin="0,0,15,0"
                        Grid.Row="4"
                        Grid.Column="1"/>
-                
-                <Label Text="Platnost dat"
+
+                    <Label Text="Platnost dat"
                        VerticalOptions="Center"
                        Grid.Row="5"
                        Grid.Column="0"/>
-                
-                <Label x:Name="PlatnostDat"
+
+                    <Label Text="{Binding PlatnostDat}"
                        VerticalOptions="Center"
                        HorizontalOptions="End"
                        Margin="0,0,15,0"
                        Grid.Row="5"
                        Grid.Column="1"/>
-                
-            </Grid>
 
-            <Grid Margin="15,5,15,5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                </Grid>
+            </Frame>
 
-                </Grid.RowDefinitions>
-                <Label Text="O programu"
+            <Frame>
+                <Grid Margin="15,5,15,5" VerticalOptions="End">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+
+                    </Grid.RowDefinitions>
+                    <Label Text="O programu"
                        FontSize="Large"
                        Grid.Row="0"/>
-                
-                <Label Text="Verze"
+
+                    <Label Text="Verze"
                        FontAttributes="Bold"
                        Grid.Row="1"
                        Grid.Column="0"/>
-                
-                <Label x:Name="Verze"
+
+                    <Label x:Name="Verze"
                        Grid.Row="1"
                        Grid.Column="1"/>
-                
-                <Label Text="Vývojář"
+
+                    <Label Text="Vývojář"
                        FontAttributes="Bold"
                        Grid.Row="2"
                        Grid.Column="0"/>
-                
-                <Label Text="Jan Rott"
+
+                    <Label Text="Jan Rott"
                        Grid.Row="2"
                        Grid.Column="1"/>
-                
-                <Label Text="Navigační data"
+
+                    <Label Text="Navigační data"
                        FontAttributes="Bold" 
                        Grid.Row="3"
                        Grid.Column="0"/>
-                
-                <Label Text="Otevřená data PID"
+
+                    <Label Text="Otevřená data PID"
                        Grid.Row="3"
                        Grid.Column="1"/>
-                
-            </Grid>
+
+                </Grid>
+            </Frame>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

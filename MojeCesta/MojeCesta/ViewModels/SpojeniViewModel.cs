@@ -7,6 +7,7 @@ using MojeCesta.Models;
 using MojeCesta.Services;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MojeCesta.ViewModels
 {
@@ -15,6 +16,7 @@ namespace MojeCesta.ViewModels
         public SpojeniViewModel()
         {
             Hledat = new Command(() => NajitSpojeni());
+            Task.Run(() => AktualizovatHistorii());
         }
 
         private string zeZastavky = string.Empty;
@@ -22,9 +24,9 @@ namespace MojeCesta.ViewModels
         private DateTime datum;
         private TimeSpan cas;
         private bool odjezd;
+        private bool aktivita;
         private int pocetPrestupu;
-        private Tuple<string, string>[] historie;
-        private List<OdjezdyZeStanice> vysledky;
+        private List<HistorieSpojeni> historie;
 
         public string ZeZastavky
         {
@@ -109,29 +111,57 @@ namespace MojeCesta.ViewModels
         {
             get
             {
+                if(PocetPrestupu == 1)
+                {
+                    return $"Maximum {PocetPrestupu} přestup";
+                }
+                if (PocetPrestupu == 2 || PocetPrestupu == 3 || PocetPrestupu == 4)
+                {
+                    return $"Maximum {PocetPrestupu} přestupy";
+                }
+
                 return $"Maximum {PocetPrestupu} přestupů";
             }
         }
 
-        public Tuple<string,string>[] Historie 
+        public List<HistorieSpojeni> Historie 
         {
             get
             {
-                //AktualizovatHistorii();
                 return historie;
             }
-            private set { historie = value; }
-        }
-
-        public List<OdjezdyZeStanice> Vysledky
-        {
-            get => vysledky;
-            set
+            private set 
             {
-                if (vysledky == value)
+                if (historie == value)
                     return;
 
-                vysledky = value;
+                historie = value;
+                OnPropertyChanged(nameof(Historie));
+            }
+        }
+
+        public bool Aktivita
+        {
+            get => aktivita;
+            set
+            {
+                if (aktivita == value)
+                    return;
+
+                aktivita = value;
+                OnPropertyChanged(nameof(Aktivita));
+            }
+        }
+
+        public List<SpojeniMeziStanicemi> Vysledky
+        {
+            get => GlobalniPromenne.VysledkySpojeni;
+            set
+            {
+                if (GlobalniPromenne.VysledkySpojeni == value)
+                    return;
+
+                GlobalniPromenne.VysledkySpojeni = value;
                 OnPropertyChanged(nameof(Vysledky));
             }
         }
@@ -146,23 +176,14 @@ namespace MojeCesta.ViewModels
 
         public async void AktualizovatHistorii()
         {
-            List<HistorieSpojeni> spojeni = await Database.NacistSpojeni();
-
-            if (spojeni != null)
-            {
-                Tuple<string, string>[] historie = new Tuple<string, string>[spojeni.Count];
-
-                for (int i = 0; i < historie.Length; i++)
-                {
-                    historie[i] = new Tuple<string, string>(spojeni[i].ZeZastavky, spojeni[i].NaZastavku);
-                }
-
-                Historie = historie;
-            }
+            Historie = await Database.NacistSpojeni();
         }
 
         public async void NajitSpojeni()
         {
+            // Zapnout indikaci aktivity pro uživatele
+            Aktivita = true;
+
             // TODO: dodělat
             Stop[] stanice = Database.NajitZastavky(ZeZastavky).Result;
 
@@ -181,7 +202,15 @@ namespace MojeCesta.ViewModels
 
             }
 
+            // Přejít na okno s výsledky
+            await Device.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(nameof(Views.VysledkySpojeniPage)));
 
+            // Uložit dotaz do historie a aktualizovat seznam
+            await Database.UlozitSpojeni(new HistorieSpojeni(ZeZastavky, NaZastavku, PocetPrestupu, Datum, Cas));
+            await Task.Run(() => AktualizovatHistorii());
+
+            // Vypnout indikaci aktivity
+            Aktivita = false;
         }
     }
 }

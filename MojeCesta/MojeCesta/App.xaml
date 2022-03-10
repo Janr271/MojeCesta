@@ -2,14 +2,60 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MojeCesta.App">
-    <!--
-        Define global resources and styles here, that apply to all pages in your app.
-    -->
+
     <Application.Resources>
         <ResourceDictionary>
+            
             <Color x:Key="Barva">#2196F3</Color>
-            <Color x:Key="Pozadi">#EEEEEE</Color>
-            <Color x:Key="Text">#000000</Color>
-        </ResourceDictionary>        
+            
+            <!-- Světlý režim -->
+            
+            <Color x:Key="SvetlyText">#000000</Color>
+            <Color x:Key="SvetlePozadi">#EEEEEE</Color>
+            <Color x:Key="SvetlyFrame">LightGray</Color>
+            
+            <!-- Tmavý režim -->
+
+            <Color x:Key="TmavyText">#EEEEEE</Color>
+            <Color x:Key="TmavePozadi">#000000</Color>
+            <Color x:Key="TmavyFrame">DarkGray</Color>
+            
+        </ResourceDictionary>
+
+        <Style TargetType="Frame">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlePozadi}, Dark={StaticResource TmavePozadi}}"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="BorderColor" Value="{StaticResource Barva}"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="ContentPage">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlePozadi}, Dark={StaticResource TmavePozadi}}" />
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Barva}"/>
+            <Setter Property="Padding" Value="5" />
+        </Style>
+
+        <Style TargetType="Entry">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+            <Setter Property="PlaceholderColor" Value="Gray"/>
+        </Style>
+
+        <Style TargetType="RadioButton">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+        </Style>
+
+        <Style TargetType="ListView">
+            <Setter Property="SeparatorColor" Value="{StaticResource Barva}" />
+        </Style>
+
     </Application.Resources>
 </Application>

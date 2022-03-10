@@ -4,22 +4,24 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <SignAssembly>true</SignAssembly>
-    <Version>1.5.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Jan Rott</Authors>
     <Company>SSPŠaG</Company>
     <Description>Offline vyhledávač spojení v rámci pražské integrované dopravy.</Description>
-    <PackageIcon>icon.png</PackageIcon>
+    <PackageIcon>ikona.png</PackageIcon>
     <PackageIconUrl />
-    <ApplicationIcon>Ikona.ico</ApplicationIcon>
+    <ApplicationIcon></ApplicationIcon>
     <Win32Resource />
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <NeutralLanguage>cs-CZ</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FileHelpers" Version="3.5.1" />
     <PackageReference Include="sqlite-net" Version="1.6.292" />
     <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />  
-    <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2337" />  
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Views\AktualizacePage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\HledaniPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
@@ -53,12 +58,5 @@
     <Compile Update="Views\HledaniPage.xaml.cs">
       <DependentUpon>HledaniPage.xaml</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\MojeCesta.Android\Resources\mipmap-xxhdpi\icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 </Project>

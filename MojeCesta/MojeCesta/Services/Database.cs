@@ -4,15 +4,16 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using MojeCesta.Models;
 using SQLite;
 using FileHelpers;
-using System.Collections.Generic;
 
 namespace MojeCesta.Services
 {
 
-    static class Database
+    public static class Database
     {
         private static SQLiteAsyncConnection db;
 
@@ -48,26 +49,43 @@ namespace MojeCesta.Services
 
         public static async Task Aktualizovat()
         {
-            // Vymaže starou databázi
-            SmazatDatabazi();
-
-            // Stáhnout soubor z internetu rozzipovat ho a odstranit původní zip
-            using (WebClient client = new WebClient())
+            try
             {
-                client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+                // Stáhnout soubor z internetu rozzipovat ho a odstranit původní zip
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+                }
+            }
+            catch (WebException)
+            {
+                GlobalniPromenne.Oznameni("Vyskytla se chyba při stahování dat!");
+                return;
             }
 
-            if (Directory.Exists(cestaKeSlozce))
+            try
             {
-                Directory.Delete(cestaKeSlozce, true);
+                if (Directory.Exists(cestaKeSlozce))
+                {
+                    Directory.Delete(cestaKeSlozce, true);
+                }
+                ZipFile.ExtractToDirectory(cestaKZipu, cestaKeSlozce);
+                File.Delete(cestaKZipu);
             }
-            ZipFile.ExtractToDirectory(cestaKZipu, cestaKeSlozce);
-            File.Delete(cestaKZipu);
-
-
-            // Naplnit databázi hodnotamy ze souborů
-            Task[] databaze =
+            catch (IOException)
             {
+                GlobalniPromenne.Oznameni("Vyskytla se chyba při rozbalování dat!");
+                return;
+            }
+
+            try
+            {
+                // Vymaže starou databázi
+                SmazatDatabazi();
+
+                // Naplnit databázi hodnotamy ze souborů
+                Task[] databaze =
+                {
                 NaplnitTabulku<Agency>("agency.txt"),
                 NaplnitTabulku<Calendar>("calendar.txt"),
                 NaplnitTabulku<Calendar_date>("calendar_dates.txt"),
@@ -86,7 +104,13 @@ namespace MojeCesta.Services
                 NaplnitTabulku<Stop_time>("stop_times.txt")
             };
 
-            await Task.WhenAll(databaze);
+                await Task.WhenAll(databaze);
+            }
+            catch (SQLiteException)
+            {
+                GlobalniPromenne.Oznameni("Vyskytla se chyba při práci s databází!");
+            }
+            
         }
 
         private static async Task NaplnitTabulku<T>(string soubor)
@@ -158,11 +182,11 @@ namespace MojeCesta.Services
 
         public static Task<List<HistorieOdjezdu>> NacistOdjezdy()
         {
-            return db.Table<HistorieOdjezdu>().Take(50).ToListAsync();
+            return db.Table<HistorieOdjezdu>().OrderByDescending(a => a.Id).Take(20).ToListAsync();
         }
         public static Task<List<HistorieSpojeni>> NacistSpojeni()
         {
-            return db.Table<HistorieSpojeni>().Take(50).ToListAsync();
+            return db.Table<HistorieSpojeni>().OrderByDescending(a => a.Id).Take(20).ToListAsync();
         }
         public static async Task UlozitSpojeni(HistorieSpojeni spojeni)
         {

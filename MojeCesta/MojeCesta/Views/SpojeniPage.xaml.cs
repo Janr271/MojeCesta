@@ -1,8 +1,5 @@
 ﻿using MojeCesta.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
@@ -28,11 +25,17 @@ namespace MojeCesta.Views
 
         public void Historie_Tapped(object sender, ItemTappedEventArgs e)
         {
-            Tuple<string, string> hodnota = (Tuple<string, string>)e.Item;
-            spojeniViewModel.ZeZastavky = hodnota.Item1;
-            spojeniViewModel.NaZastavku = hodnota.Item2;
+            if(e.Item is Models.HistorieSpojeni spojeni)
+            {
+                spojeniViewModel.ZeZastavky = spojeni.ZeZastavky;
+                spojeniViewModel.NaZastavku = spojeni.NaZastavku;
 
-            Hledat_Clicked(sender, EventArgs.Empty);
+                Hledat_Clicked(sender, EventArgs.Empty);
+            }
+            else
+            {
+                throw new ArgumentException("Vybraný prvek musí být typu HistorieSpojení");
+            }
         }
 
         private async void Nastaveni_Clicked(object sender, EventArgs e)

@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
+             xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
+             xmlns:models="clr-namespace:MojeCesta.Models"
+             x:DataType="viewmodels:OdjezdyViewModel"
              x:Class="MojeCesta.Views.OdjezdyPage"
              Title="Moje Cesta">
+    
     
     <ContentPage.BindingContext>
         <viewmodels:OdjezdyViewModel/>
@@ -13,15 +16,19 @@
         <ToolbarItem Icon="settings_black.png" 
                      Clicked="Nastaveni_Clicked"/>
     </ContentPage.ToolbarItems>
+
     <ContentPage.Content>
-        <Grid Margin="20,5,20,5">
+
+        <Grid Margin="20,5,20,5" >
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
 
+            <ActivityIndicator IsRunning="{Binding Aktivita}" Grid.Row="3" Grid.ColumnSpan="2" HorizontalOptions="Center"/>
 
             <Entry x:Name="ZeZastavkyO"
                    Text="{Binding ZeZastavky}"
@@ -36,27 +43,47 @@
                         Format="t"
                         Grid.Row="1"
                         Grid.Column="0"/>
-            
+
             <DatePicker x:Name="Datum"
                         Date="{Binding Datum}"
                         Format="d"
                         Grid.Row="1"
                         Grid.Column="1"/>
-            
+
             <Button Text="Hledat"
                     Clicked="Hledat_Clicked"
-                    BackgroundColor="{StaticResource Barva}"
                     Grid.Row="2"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"/>
 
+            <Label FontSize="Medium" 
+                   Text="Historie"
+                   VerticalOptions="Center"
+                   Grid.Row="3"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"/>
+
             <ListView x:Name="Historie"
-                      Header="Historie"
                       ItemTapped="Historie_ItemTapped"
                       ItemsSource="{Binding Historie}"
-                      Grid.Row="3"
+                      SelectionMode="None"
+                      HasUnevenRows="True"
+                      SeparatorVisibility="None"
+                      Grid.Row="4"
                       Grid.Column="0"
-                      Grid.ColumnSpan="2"/>
+                      Grid.ColumnSpan="2">
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:HistorieOdjezdu">
+                        <ViewCell>
+                            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}">
+                                <Label Text="{Binding ZeZastavky}" Margin="15,5,15,5"/>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                
+            </ListView>
 
         </Grid>
     </ContentPage.Content>
