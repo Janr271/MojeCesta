@@ -5,6 +5,7 @@
              xmlns:models="clr-namespace:MojeCesta.Models"
              x:DataType="viewmodels:OdjezdyViewModel"
              x:Class="MojeCesta.Views.OdjezdyPage"
+             Style="{StaticResource Formular}"
              Title="Moje Cesta">
     
     
@@ -19,7 +20,7 @@
 
     <ContentPage.Content>
 
-        <Grid Margin="20,5,20,5" >
+        <Grid Margin="20,5,20,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -76,7 +77,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:HistorieOdjezdu">
                         <ViewCell>
-                            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}">
+                            <Frame Style="{StaticResource Historie}">
                                 <Label Text="{Binding ZeZastavky}" Margin="15,5,15,5"/>
                             </Frame>
                         </ViewCell>

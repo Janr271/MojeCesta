@@ -4,6 +4,7 @@
              xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
              xmlns:models="clr-namespace:MojeCesta.Models"
              x:Class="MojeCesta.Views.SpojeniPage"
+             Style="{StaticResource Formular}"
              Title="Moje Cesta">
 
     <ContentPage.BindingContext>
@@ -16,14 +17,14 @@
     </ContentPage.ToolbarItems>
     
     <ContentPage.Content>
-        
+
         <Grid Margin="20,5,20,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="0.5*"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="6*"/>
@@ -35,6 +36,7 @@
             </Grid.ColumnDefinitions>
 
             <ImageButton Source="swap_black.png"
+                         Style="{StaticResource Switcher}"
                          Clicked="Zmena_Clicked"
                          Grid.Row="0"
                          Grid.Column="0"
@@ -78,7 +80,7 @@
                         Grid.Row="4"
                         Grid.Column="1"
                         Minimum="0"
-                        Maximum="10"
+                        Maximum="5"
                         Value="{Binding PocetPrestupu}"/>
                 
 
@@ -97,7 +99,6 @@
 
             <Button Text="Hledat"
                     Clicked="Hledat_Clicked"
-                    BackgroundColor="{StaticResource Barva}"
                     Grid.Row="5"
                     Grid.Column="1"
                     Grid.ColumnSpan="2"/>
@@ -114,18 +115,21 @@
             <ListView ItemTapped="Historie_Tapped"
                       ItemsSource="{Binding Historie}"
                       SeparatorVisibility="None"
+                      RowHeight="80"
                       Grid.Row="7"
                       Grid.Column="0"
                       Grid.ColumnSpan="3">
                 
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:HistorieSpojeni">
-                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}">
-                            <StackLayout Margin="5">
-                                <Label Text="{Binding ZeZastavky}" />
-                                <Label Text="{Binding NaZastavku}" />
-                            </StackLayout>
-                        </Frame>
+                    <DataTemplate >
+                        <ViewCell>
+                            <Frame Style="{StaticResource Historie}">
+                                <StackLayout Orientation="Vertical" Margin="15,5,15,5">
+                                    <Label Text="{Binding ZeZastavky}" />
+                                    <Label Text="{Binding NaZastavku}" />
+                                </StackLayout>
+                            </Frame>
+                        </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
                 

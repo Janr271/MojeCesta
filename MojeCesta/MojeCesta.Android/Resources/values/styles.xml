@@ -3,6 +3,11 @@
 
   <style name="MainTheme" parent="MainTheme.Base">
     <item name="colorAccent">#2196F3</item>
+    <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
+  </style>
+
+  <style name="AppCompatDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+    <item name="colorAccent">#2196F3</item>
   </style>
   
   <style name="MainTheme.Launcher">

@@ -4,6 +4,7 @@
              xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels" 
              xmlns:model="clr-namespace:MojeCesta.Models"
              x:Class="MojeCesta.Views.VysledkySpojeniPage"
+             Style="{StaticResource Stranka}"
              Title="Spojení">
 
     <ContentPage.BindingContext>

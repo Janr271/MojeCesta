@@ -9,15 +9,15 @@
         <ResourceDictionary>
             
             <Style x:Key="BaseStyle" TargetType="Element">
-                <Setter Property="Shell.BackgroundColor" Value="{StaticResource Barva}" />
-                <Setter Property="Shell.ForegroundColor" Value="White" />
-                <Setter Property="Shell.TitleColor" Value="White" />
-                <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
-                <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource Barva}" />
-                <Setter Property="Shell.TabBarForegroundColor" Value="White"/>
-                <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF"/>
-                <Setter Property="Shell.TabBarTitleColor" Value="White"/>
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource Modra}" />
+                <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+                <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
+                <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource SvetlyZamknuto}, Dark={StaticResource TmavyZamknuto}}" />
+                <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light={StaticResource SvetlyNevybrano}, Dark={StaticResource TmavyNevybrano}}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource Modra}" />
+                <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource SvetlyNevybrano}, Dark={StaticResource TmavyNevybrano}}"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}"/>
             </Style>
 
             <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />

@@ -5,57 +5,102 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            
-            <Color x:Key="Barva">#2196F3</Color>
-            
+
+            <Color x:Key="Modra">#2196F3</Color>
+            <Color x:Key="Seda">Gray</Color>
+            <Color x:Key="Pruhledna">#00000000</Color>
+
             <!-- Světlý režim -->
-            
-            <Color x:Key="SvetlyText">#000000</Color>
+
+            <Color x:Key="SvetlyText">#FFFFFF</Color>
+            <Color x:Key="SvetlyNevybrano">#95FFFFFF</Color>
+            <Color x:Key="SvetlyZamknuto">#B4FFFFFF</Color>
             <Color x:Key="SvetlePozadi">#EEEEEE</Color>
             <Color x:Key="SvetlyFrame">LightGray</Color>
-            
+
             <!-- Tmavý režim -->
 
-            <Color x:Key="TmavyText">#EEEEEE</Color>
-            <Color x:Key="TmavePozadi">#000000</Color>
-            <Color x:Key="TmavyFrame">DarkGray</Color>
+            <Color x:Key="TmavyText">#000000</Color>
+            <Color x:Key="TmavyNevybrano">#85000000</Color>
+            <Color x:Key="TmavyZamknuto">#B4000000</Color>
+            <Color x:Key="TmavePozadi">#111111</Color>
+            <Color x:Key="TmavyFrame">#444444</Color>
             
+            <!-- Ovládací prvky -->
+
+            <Style x:Key="Stranka" TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Seda}, Dark={StaticResource TmavePozadi}}" />
+            </Style>
+
+            <Style x:Key="Formular" TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlePozadi}, Dark={StaticResource TmavePozadi}}" />
+            </Style>
+
+            <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+            <Style TargetType="Grid">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+            </Style>
+
+            <Style TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="BorderColor" Value="{StaticResource Modra}"/>
+                <Setter Property="Padding" Value="3"/>
+                <Setter Property="Margin" Value="10"/>
+            </Style>
+
+            <Style x:Key="Historie" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}"/>
+            </Style>
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Modra}"/>
+                <Setter Property="Padding" Value="5" />
+            </Style>
+
+            <Style x:Key="Switcher" TargetType="ImageButton">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlyFrame}, Dark={StaticResource TmavyFrame}}"/>
+            </Style>
+
+            <Style TargetType="RadioButton">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Pruhledna}, Dark={StaticResource TmavyFrame}}" />
+                
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Pruhledna}, Dark={StaticResource TmavyFrame}}" />
+                <Setter Property="PlaceholderColor" Value="Gray"/>
+            </Style>
+
+            <Style TargetType="TimePicker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Pruhledna}, Dark={StaticResource TmavyFrame}}" />
+            </Style>
+
+            <Style TargetType="DatePicker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TmavyText}, Dark={StaticResource SvetlyText}}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Pruhledna}, Dark={StaticResource TmavyFrame}}" />
+            </Style>
+
+            <Style TargetType="Stepper">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Pruhledna}, Dark={StaticResource TmavyFrame}}" />
+            </Style>
+
+            <Style TargetType="ListView">
+                <Setter Property="SeparatorColor" Value="{StaticResource Modra}" />
+                <Setter Property="SelectionMode" Value="None" />
+            </Style>
+
         </ResourceDictionary>
-
-        <Style TargetType="Frame">
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlePozadi}, Dark={StaticResource TmavePozadi}}"/>
-            <Setter Property="CornerRadius" Value="20"/>
-            <Setter Property="BorderColor" Value="{StaticResource Barva}"/>
-            <Setter Property="Padding" Value="3"/>
-            <Setter Property="Margin" Value="10"/>
-        </Style>
-
-        <Style TargetType="ContentPage">
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SvetlePozadi}, Dark={StaticResource TmavePozadi}}" />
-        </Style>
-
-        <Style TargetType="Label">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
-        </Style>
-
-        <Style TargetType="Button">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
-            <Setter Property="BackgroundColor" Value="{StaticResource Barva}"/>
-            <Setter Property="Padding" Value="5" />
-        </Style>
-
-        <Style TargetType="Entry">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
-            <Setter Property="PlaceholderColor" Value="Gray"/>
-        </Style>
-
-        <Style TargetType="RadioButton">
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SvetlyText}, Dark={StaticResource TmavyText}}" />
-        </Style>
-
-        <Style TargetType="ListView">
-            <Setter Property="SeparatorColor" Value="{StaticResource Barva}" />
-        </Style>
-
     </Application.Resources>
 </Application>

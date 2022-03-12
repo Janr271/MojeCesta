@@ -1,7 +1,5 @@
-﻿using System;
-using System.Globalization;
-using System.Threading.Tasks;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
+using MojeCesta.Services;
 
 namespace MojeCesta
 {
@@ -17,6 +15,7 @@ namespace MojeCesta
 
         protected override void OnStart()
         {
+            Promenne.AplikovatStyl();
         }
 
         protected override void OnSleep()
@@ -25,6 +24,7 @@ namespace MojeCesta
 
         protected override void OnResume()
         {
+            Promenne.AplikovatStyl();
         }
     }
 }

@@ -90,13 +90,13 @@ namespace MojeCesta.ViewModels
         }
         public List<OdjezdyZeStanice> Vysledky
         {
-            get => GlobalniPromenne.VysledkyOdjezdu;
+            get => Promenne.VysledkyOdjezdu;
             set
             {
-                if (GlobalniPromenne.VysledkyOdjezdu == value)
+                if (Promenne.VysledkyOdjezdu == value)
                     return;
 
-                GlobalniPromenne.VysledkyOdjezdu = value;
+                Promenne.VysledkyOdjezdu = value;
 
                 OnPropertyChanged(nameof(Vysledky));
             }
@@ -120,13 +120,13 @@ namespace MojeCesta.ViewModels
             // Spustit indikátor o aktivitě pro uživatele
             Aktivita = true;
 
-            Stop[] stanice = Database.NajitZastavky(ZeZastavky).Result;
+            Stop[] stanice = Database.ZastavkyPodleJmena(ZeZastavky).Result;
             List<OdjezdyZeStanice> noveVysledky = new List<OdjezdyZeStanice>();
 
             // Najít všechny nástupiště zvolené stanice
             for (int i = 0; i < stanice.Length; i++)
             {
-                Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas);
+                Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas, Datum);
                 List<Odjezd> seznamOdjezdu = new List<Odjezd>();
 
                 // Najít odjezdy z vybraného nástupiště nebo vypsat chybu

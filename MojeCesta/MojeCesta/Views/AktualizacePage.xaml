@@ -1,16 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MojeCesta.Views.AktualizacePage">
+             x:Class="MojeCesta.Views.AktualizacePage"
+             Style="{StaticResource Formular}"
+             Shell.TabBarIsVisible="false">
     <ContentPage.Content >
         <StackLayout>
-            <ActivityIndicator IsRunning="True" 
-                               VerticalOptions="CenterAndExpand" 
-                               HorizontalOptions="CenterAndExpand"/>
-            
-            <Label Text="Probíhá aktualizace databáze"
+
+            <Label FontSize="Large" Text="Je nutná aktualizace databáze"
                 VerticalOptions="CenterAndExpand" 
                 HorizontalOptions="CenterAndExpand" />
+            
+            <ActivityIndicator x:Name="Aktivita"
+                               x:FieldModifier="public"
+                               VerticalOptions="CenterAndExpand" 
+                               HorizontalOptions="CenterAndExpand"/>
+
+            <Label Text="Aktualizace může trvat několik minut"
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" />
+
+            <Button Text="Aktualizovat" 
+                    Clicked="Button_Clicked"
+                    VerticalOptions="CenterAndExpand" 
+                    HorizontalOptions="CenterAndExpand"/>
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

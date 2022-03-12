@@ -19,13 +19,14 @@ namespace MojeCesta.Views
             Hledani.Text = text;
         }
 
-        private void Hledani_Changed(object sender, TextChangedEventArgs e)
+        private async void Hledani_Changed(object sender, TextChangedEventArgs e)
         {
-            SeznamStanic.ItemsSource = Database.NajitStanici(Hledani.Text).Result;
+            SeznamStanic.ItemsSource = await Database.HledaniStanicePodleJmena(Hledani.Text);
         }
 
         private async void Hledani_Completed(object sender, System.EventArgs e)
         {
+            // Vrátit hodnotu zpět volajícímu
             if (Rodic is OdjezdyPage odjezdy)
             {
                 odjezdy.odjezdyViewModel.ZeZastavky = Hledani.Text;
@@ -42,11 +43,13 @@ namespace MojeCesta.Views
                 }
             }
 
+            // Zavřít okno
             await Navigation.PopModalAsync(false);
         }
 
         private async void SeznamStanic_Tapped(object sender, ItemTappedEventArgs e)
         {
+            // Vrátit hodnotu zpět volajícímu
             if (Rodic is OdjezdyPage odjezdy)
             {
                 odjezdy.odjezdyViewModel.ZeZastavky = e.Item.ToString();
@@ -63,6 +66,7 @@ namespace MojeCesta.Views
                 }
             }
 
+            // Zavřít okno
             await Navigation.PopModalAsync(false);
         }
 

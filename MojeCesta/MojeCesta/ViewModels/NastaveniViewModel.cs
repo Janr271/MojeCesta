@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-
-using Xamarin.Forms;
+﻿using System.ComponentModel;
 using MojeCesta.Services;
 
 namespace MojeCesta.ViewModels
@@ -13,22 +7,20 @@ namespace MojeCesta.ViewModels
     {
         public NastaveniViewModel()
         {
-            Aktualizovat = new Command(() => AktualizaceDat.Aktualizovat(true));
         }
 
-        public Command Aktualizovat { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool Rezim
         {
-            get => Models.GlobalniPromenne.Rezim;
+            get => Promenne.Rezim;
 
             set
             {
-                if (Models.GlobalniPromenne.Rezim == value)
+                if (Promenne.Rezim == value)
                     return;
 
-                Models.GlobalniPromenne.Rezim = value;
+                Promenne.Rezim = value;
                 OnPropertyChanged(nameof(Rezim));
             }
         }

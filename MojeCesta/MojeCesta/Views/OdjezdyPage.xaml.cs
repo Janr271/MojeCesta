@@ -32,7 +32,7 @@ namespace MojeCesta.Views
                 return;
             }
 
-            if (await Database.NajitZastavku(odjezdyViewModel.ZeZastavky) == null)
+            if (await Database.ZastavkaPodleJmena(odjezdyViewModel.ZeZastavky) == null)
             {
                 await DisplayAlert("Chyba", "Výchozí stanice nebyla nalezena!", "OK");
                

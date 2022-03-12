@@ -1,7 +1,10 @@
 ﻿using System;
-using Xamarin.Forms;
-using Xamarin.Essentials;
+using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+
+using Xamarin.Essentials;
+using Newtonsoft.Json;
 using MojeCesta.Models;
 
 namespace MojeCesta.Services
@@ -12,15 +15,11 @@ namespace MojeCesta.Services
         {
             get
             {
-                if (Application.Current.Properties.ContainsKey("pouzeWifi"))
-                {
-                    return (bool)Application.Current.Properties["pouzeWifi"];
-                }
-                return true;
+                return Preferences.Get(nameof(PouzeWifi), true);
             }
             set
             {
-                Application.Current.Properties["pouzeWifi"] = value;
+                Preferences.Set(nameof(PouzeWifi), value);
             }
         }
 
@@ -28,15 +27,11 @@ namespace MojeCesta.Services
         {
             get
             {
-                if (Application.Current.Properties.ContainsKey("automatickaAktualizace"))
-                {
-                    return (bool)Application.Current.Properties["automatickaAktualizace"];
-                }
-                return true;
+                return Preferences.Get(nameof(AutomatickaAktualizace), true);
             }
             set
             {
-                Application.Current.Properties["automatickaAktualizace"] = value;
+                Preferences.Set(nameof(AutomatickaAktualizace), value);
             }
         }
 
@@ -44,65 +39,185 @@ namespace MojeCesta.Services
         {
             get
             {
-                if (Application.Current.Properties.ContainsKey("frekvence"))
-                {
-                    return (TimeSpan)Application.Current.Properties["frekvence"];
-                }
-                return new TimeSpan(7, 0, 0, 0);
+                return new TimeSpan(Preferences.Get(nameof(Frekvence), new TimeSpan(7, 0, 0, 0).Ticks));
             }
             set
             {
-                Application.Current.Properties["frekvence"] = value;
+                Preferences.Set(nameof(Frekvence), value.Ticks);
             }
         }
 
-        public static DateTime? PosledniAktualizace 
+        public static DateTime? PosledniAktualizace
         {
-            get 
+            get
             {
-                if (Application.Current.Properties.ContainsKey("posledniAktualizace"))
-                {
-                    return (DateTime)Application.Current.Properties["posledniAktualizace"];
-                }
-                return null;
-            } 
-            set 
-            { 
-                Application.Current.Properties["posledniAktualizace"] = value; 
-            } 
+                return Preferences.ContainsKey(nameof(PosledniAktualizace)) ? (DateTime?)Preferences.Get(nameof(PosledniAktualizace), new DateTime()) : null;
+            }
+            set
+            {
+                Preferences.Set(nameof(PosledniAktualizace), (DateTime)value);
+            }
         }
 
-        public static void Aktualizovat(bool manualne)
+        public static async void Aktualizovat(Views.AktualizacePage aktualizacePage)
         {
-            // Spustit aktualizaci pokud
-            // 1. Uživatel si aktualizaci vyvolal ručně
-            // 2. Aplikace ještě nemá žádnou databázi
-            // 3. Je zapnuta automatická aktualizace a uběhla stanovená doba od poslední aktualizace 
-            if (manualne || PosledniAktualizace == null || (AutomatickaAktualizace && DateTime.Now.Subtract(Frekvence) >= PosledniAktualizace))
-            {
-                // Uzamknout UI
-                GlobalniPromenne.Uzamknout();
+            // Indikace aktivity pro uživatele
+            aktualizacePage.Aktivita.IsRunning = true;
 
-                if(Connectivity.NetworkAccess == NetworkAccess.Internet)
+            // Pokud je zařízení připojeno k internetu
+            if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+            {
+                // Pokud je připojeno k wifi ve striktním režimu
+                if (!PouzeWifi || Connectivity.ConnectionProfiles.Contains(ConnectionProfile.WiFi))
                 {
-                    if (!PouzeWifi || Connectivity.ConnectionProfiles.Contains(ConnectionProfile.WiFi))
-                    {
-                        Database.Aktualizovat().Wait();
-                        PosledniAktualizace = DateTime.Now;
+                    var vysledek = await Database.Aktualizovat();
+                    
+                    // Pokud se aktualizace zdařila
+                    if (vysledek.Item1)
+                    { 
+
+                        // Cashování dat k vyhledávání spojení
+                        Route_stop[] linky = Database.NacistLinky().Result;
+                        Dictionary<string, int> zastavky = new Dictionary<string, int>();
+                        List<Zastavka> seznamZastavek = new List<Zastavka>();
+                        List<Linka> seznamLinek = new List<Linka>();
+                        int indexZacatku = 0;
+
+                        // Vytvoření seznamu všech linek s jejich zastávkami
+                        for (int i = 0; i < linky.Length; i++)
+                        {
+                            if (i != 0 && (linky[i].Route_id != linky[i - 1].Route_id || linky[i].Direction_id != linky[i - 1].Direction_id))
+                            {
+                                int pocet = i - (indexZacatku + 1);
+
+                                Route_stop[] a = new Route_stop[pocet];
+                                Array.Copy(linky, indexZacatku, a, 0, pocet);
+
+                                seznamLinek.Add(new Linka(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
+                                indexZacatku = i;
+                            }
+                            else if (i == linky.Length - 1)
+                            {
+                                int pocet = i - indexZacatku;
+
+                                Route_stop[] a = new Route_stop[pocet];
+                                Array.Copy(linky, indexZacatku, a, 0, pocet);
+
+                                seznamLinek.Add(new Linka(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
+                            }
+
+                            if (!zastavky.ContainsKey(linky[i].Stop_id))
+                            {
+                                zastavky.Add(linky[i].Stop_id, zastavky.Count);
+                                seznamZastavek.Add(new Zastavka(Database.NajitZastavku(linky[i].Stop_id).Result));
+                            }
+
+                            seznamZastavek[zastavky[linky[i].Stop_id]].Linky.Add(seznamLinek.Count);
+                        }
+
+                        // Poloměr země
+                        double R = 6371000 * Math.Sqrt(2.0);
+
+                        // Spočítat pěší vazby mezi stanicemi pomocí Haversinovy formule
+                        for (int i = 1; i < seznamZastavek.Count; i++)
+                        {
+                            //for (int y = 1; y < seznamZastavek.Count; y++)
+                            //{
+                            //    // Poloměr země
+
+                            //    double R = 6371000;
+                            //    double uhel1 = seznamZastavek[i].Stop_lat * Math.PI / 180;
+                            //    double uhel2 = seznamZastavek[y].Stop_lat * Math.PI / 180;
+                            //    double rozdil1 = (seznamZastavek[y].Stop_lat - seznamZastavek[i].Stop_lat) * Math.PI / 180;
+                            //    double rozdil2 = (seznamZastavek[y].Stop_lon - seznamZastavek[i].Stop_lon) * Math.PI / 180;
+
+                            //    double a = Math.Sin(rozdil1 / 2) * Math.Sin(rozdil1 / 2) +
+                            //               Math.Cos(uhel1) * Math.Cos(uhel2) *
+                            //               Math.Sin(rozdil2 / 2) * Math.Sin(rozdil2 / 2);
+                            //    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+                            //    double d = R * c;
+
+                            //    if (d < 250)
+                            //    {
+                            //        seznamLinek.Add(new Linka(new Route_stop[] {
+                            //    new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 1),
+                            //    new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 2) },
+                            //                Route_stop.Direction.OneDirection, new Route(), true));
+                            //    }
+                            //}
+
+                            double lat1 = seznamZastavek[i].Stop_lat * Math.PI / 180;
+                            double lon1 = seznamZastavek[i].Stop_lon * Math.PI / 180;
+                            double cos1 = Math.Cos(lat1);
+                            double sin1 = Math.Sin(lat1);
+
+                            for (int y = 0; y < i; y++)
+                            {
+                                double lat2 = seznamZastavek[y].Stop_lat * Math.PI / 180;
+                                double lon2 = seznamZastavek[y].Stop_lon * Math.PI / 180;
+
+                                double d = R * Math.Sqrt(Math.Abs(1.0 - cos1 * Math.Cos(lat2) * Math.Cos(lon1 - lon2) - sin1 * Math.Sin(lat2)));
+
+                                if (d < 250)
+                                {
+                                    seznamLinek.Add(new Linka(new Route_stop[] {
+                                new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 1),
+                                new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 2) },
+                                            Route_stop.Direction.OneDirection, new Route(), true));
+
+                                    seznamLinek.Add(new Linka(new Route_stop[] {
+                                new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 1),
+                                new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 2) },
+                                            Route_stop.Direction.OppositeDirection, new Route(), true));
+                                }
+                            }
+                        }
+
+                        Promenne.SeznamZastavek = seznamZastavek;
+                        Promenne.SeznamLinek = seznamLinek;
+                        Promenne.Zastavky = zastavky;
+
+                        try
+                        {
+                            // Uložit proměnné do souboru
+                            File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek), System.Text.Encoding.UTF8);
+                            File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek), System.Text.Encoding.UTF8);
+                            File.WriteAllText(Promenne.CestaZastavky, JsonConvert.SerializeObject(zastavky), System.Text.Encoding.UTF8);
+
+                            // Uložit datum poslední aktualizace
+                            PosledniAktualizace = DateTime.Now;
+
+                            // Odemknout UI
+                            aktualizacePage.Zavrit();
+                            return;
+                        }
+                        catch (JsonException)
+                        {
+                            await aktualizacePage.DisplayAlert("Chyba", "Chyba při vytváření cache!", "OK");
+                        }
                     }
+
+                    // Pokud ne, vypsat chybovou hlášku
                     else
                     {
-                        GlobalniPromenne.Oznameni("Zařízení není připojeno k Wifi!");
+                        await aktualizacePage.DisplayAlert("Chyba", vysledek.Item2, "OK");
                     }
+
                 }
                 else
                 {
-                    GlobalniPromenne.Oznameni("Zařízení není připojeno k internetu!");
+                    await aktualizacePage.DisplayAlert("Chyba", "Zařízení není připojeno k Wifi!", "OK");
                 }
             }
+            else
+            {
+                await aktualizacePage.DisplayAlert("Chyba", "Zařízení není připojeno k internetu!", "OK");
 
-            // Odemknout UI
-            GlobalniPromenne.Odemknout();
+            }
+
+            // Ukonční indikace aktivity
+            aktualizacePage.Aktivita.IsRunning = false;
         }
     }
 }

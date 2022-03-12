@@ -64,14 +64,14 @@ namespace MojeCesta.Views
                 return;
             }
 
-            if (await Database.NajitZastavku(spojeniViewModel.ZeZastavky) == null)
+            if (await Database.ZastavkaPodleJmena(spojeniViewModel.ZeZastavky) == null)
             {
                 await DisplayAlert("Chyba", "Výchozí stanice nebyla nalezena!", "OK");
 
                 return;
             }
 
-            if (await Database.NajitZastavku(spojeniViewModel.NaZastavku) == null)
+            if (await Database.ZastavkaPodleJmena(spojeniViewModel.NaZastavku) == null)
             {
                 await DisplayAlert("Chyba", "Cílová stanice nebyla nalezena!", "OK");
 
@@ -83,8 +83,6 @@ namespace MojeCesta.Views
                 await DisplayAlert("Chyba", "Nebyl zadán čas nebo datum!", "OK");
                 return;
             }
-
-            await Shell.Current.GoToAsync(nameof(VysledkyOdjezduPage));
 
             await Task.Run(() => spojeniViewModel.NajitSpojeni());
 

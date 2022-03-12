@@ -6,10 +6,8 @@ namespace MojeCesta.Models
 {
     public class SpojeniMeziStanicemi : List<Spojeni>
     {
-        public SpojeniMeziStanicemi(string doOdjezdu, string metrika)
+        public SpojeniMeziStanicemi()
         {
-            DoOdjezdu = doOdjezdu;
-            Metrika = metrika;
         }
         public string DoOdjezdu { get; set; }
         public string Metrika { get; set; }

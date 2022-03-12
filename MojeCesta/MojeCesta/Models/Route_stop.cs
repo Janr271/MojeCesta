@@ -11,6 +11,19 @@ namespace MojeCesta.Models
         public string Stop_id { get; set; }
         public int Stop_sequence { get; set; }
 
+        public Route_stop()
+        {
+
+        }
+
+        public Route_stop(string route_id, Direction direction_id, string stop_id, int stop_sequence)
+        {
+            Route_id = route_id;
+            Direction_id = direction_id;
+            Stop_id = stop_id;
+            Stop_sequence = stop_sequence;
+        }
+
         public enum Direction
         {
             OneDirection = 0,

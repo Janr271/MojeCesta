@@ -3,13 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns:viewmodels="clr-namespace:MojeCesta.ViewModels"
              x:Class="MojeCesta.Views.NastaveniPage"
+             Shell.TabBarIsVisible="false"
+             Style="{StaticResource Stranka}"
              Title="Nastavení">
     <ContentPage.BindingContext>
         <viewmodels:NastaveniViewModel/>
     </ContentPage.BindingContext>
 
     <ContentPage.Content>
-        <StackLayout Background="Gray">
+        <StackLayout>
             <Frame>
                 <Grid Margin="15,5,15,5" VerticalOptions="Start">
                     <Grid.RowDefinitions>
@@ -56,10 +58,10 @@
                         Grid.Column="1"/>
 
                     <Button Text="Aktualizovat data"
-                        Command="{Binding Aktualizovat}"
-                        Margin="0,2,0,2"
-                        Grid.Row="3"
-                        Grid.Column="0"/>
+                            Clicked="Button_Clicked"
+                            Margin="0,2,0,2"
+                            Grid.Row="3"
+                            Grid.Column="0"/>
 
                     <Label Text="Poslední aktualizace dat"
                        VerticalOptions="Center"
@@ -87,7 +89,12 @@
 
                 </Grid>
             </Frame>
-
+            
+            <Rectangle Fill="Transparent"
+                       Stroke="Transparent"
+                       BackgroundColor="Transparent"
+                       HorizontalOptions="CenterAndExpand" />
+            
             <Frame>
                 <Grid Margin="15,5,15,5" VerticalOptions="End">
                     <Grid.RowDefinitions>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Essentials;
@@ -15,6 +14,11 @@ namespace MojeCesta.Views
             InitializeComponent();
 
             Verze.Text = VersionTracking.CurrentVersion;
+        }
+
+        private async void Button_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new AktualizacePage(false), false);
         }
     }
 }

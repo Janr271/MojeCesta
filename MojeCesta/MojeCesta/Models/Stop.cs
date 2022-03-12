@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using FileHelpers;
+using System.Collections.Generic;
 
 namespace MojeCesta.Models
 {
@@ -24,6 +25,25 @@ namespace MojeCesta.Models
         public string Asw_node_id { get; set; }
         public string Asw_stop_id { get; set; }
 
+        public Stop()
+        {
+
+        }
+
+        public Stop(Stop s)
+        {
+            Stop_id = s.Stop_id;
+            Stop_name = s.Stop_name;
+            Stop_lat = s.Stop_lat;
+            Stop_lon = s.Stop_lon;
+            Zone_id = s.Zone_id;
+            Location_type = s.Location_type;
+            Parent_station = s.Parent_station;
+            Platform_code = s.Platform_code;
+            Asw_node_id = s.Asw_node_id;
+            Asw_stop_id = s.Asw_stop_id;
+        }
+
         public enum LocationType
         {
             Stop = 0,
@@ -43,5 +63,15 @@ namespace MojeCesta.Models
         {
             return Stop_name;
         }
+    }
+
+    public class Zastavka : Stop
+    {
+        public Zastavka(Stop s) : base(s)
+        {
+            Linky = new List<int>();
+        }
+
+        public List<int> Linky;
     }
 }
