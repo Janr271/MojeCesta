@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System.Threading.Tasks;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace MojeCesta.Views
@@ -20,9 +21,9 @@ namespace MojeCesta.Views
             }
         }
 
-        private void Button_Clicked(object sender, System.EventArgs e)
+        private async void Button_Clicked(object sender, System.EventArgs e)
         {
-            Services.AktualizaceDat.Aktualizovat(this);
+            await Services.AktualizaceDat.Aktualizovat(this);
         }
 
         public void Zavrit()

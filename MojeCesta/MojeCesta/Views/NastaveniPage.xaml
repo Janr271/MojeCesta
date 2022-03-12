@@ -89,12 +89,7 @@
 
                 </Grid>
             </Frame>
-            
-            <Rectangle Fill="Transparent"
-                       Stroke="Transparent"
-                       BackgroundColor="Transparent"
-                       HorizontalOptions="CenterAndExpand" />
-            
+
             <Frame>
                 <Grid Margin="15,5,15,5" VerticalOptions="End">
                     <Grid.RowDefinitions>

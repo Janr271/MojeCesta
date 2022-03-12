@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using Xamarin.Essentials;
 using Newtonsoft.Json;
 using MojeCesta.Models;
+using Xamarin.Forms;
+using System.Threading.Tasks;
 
 namespace MojeCesta.Services
 {
@@ -59,7 +61,7 @@ namespace MojeCesta.Services
             }
         }
 
-        public static async void Aktualizovat(Views.AktualizacePage aktualizacePage)
+        public static async Task Aktualizovat(Views.AktualizacePage aktualizacePage)
         {
             // Indikace aktivity pro uživatele
             aktualizacePage.Aktivita.IsRunning = true;
@@ -73,11 +75,12 @@ namespace MojeCesta.Services
                     var vysledek = await Database.Aktualizovat();
                     
                     // Pokud se aktualizace zdařila
+                    
                     if (vysledek.Item1)
-                    { 
+                    {
 
                         // Cashování dat k vyhledávání spojení
-                        Route_stop[] linky = Database.NacistLinky().Result;
+                        Route_stop[] linky = await Database.NacistLinky();
                         Dictionary<string, int> zastavky = new Dictionary<string, int>();
                         List<Zastavka> seznamZastavek = new List<Zastavka>();
                         List<Linka> seznamLinek = new List<Linka>();
@@ -121,32 +124,6 @@ namespace MojeCesta.Services
                         // Spočítat pěší vazby mezi stanicemi pomocí Haversinovy formule
                         for (int i = 1; i < seznamZastavek.Count; i++)
                         {
-                            //for (int y = 1; y < seznamZastavek.Count; y++)
-                            //{
-                            //    // Poloměr země
-
-                            //    double R = 6371000;
-                            //    double uhel1 = seznamZastavek[i].Stop_lat * Math.PI / 180;
-                            //    double uhel2 = seznamZastavek[y].Stop_lat * Math.PI / 180;
-                            //    double rozdil1 = (seznamZastavek[y].Stop_lat - seznamZastavek[i].Stop_lat) * Math.PI / 180;
-                            //    double rozdil2 = (seznamZastavek[y].Stop_lon - seznamZastavek[i].Stop_lon) * Math.PI / 180;
-
-                            //    double a = Math.Sin(rozdil1 / 2) * Math.Sin(rozdil1 / 2) +
-                            //               Math.Cos(uhel1) * Math.Cos(uhel2) *
-                            //               Math.Sin(rozdil2 / 2) * Math.Sin(rozdil2 / 2);
-                            //    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-                            //    double d = R * c;
-
-                            //    if (d < 250)
-                            //    {
-                            //        seznamLinek.Add(new Linka(new Route_stop[] {
-                            //    new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 1),
-                            //    new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 2) },
-                            //                Route_stop.Direction.OneDirection, new Route(), true));
-                            //    }
-                            //}
-
                             double lat1 = seznamZastavek[i].Stop_lat * Math.PI / 180;
                             double lon1 = seznamZastavek[i].Stop_lon * Math.PI / 180;
                             double cos1 = Math.Cos(lat1);
@@ -180,7 +157,8 @@ namespace MojeCesta.Services
 
                         try
                         {
-                            // Uložit proměnné do souboru
+                            //Uložit proměnné do souboru
+
                             File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek), System.Text.Encoding.UTF8);
                             File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek), System.Text.Encoding.UTF8);
                             File.WriteAllText(Promenne.CestaZastavky, JsonConvert.SerializeObject(zastavky), System.Text.Encoding.UTF8);

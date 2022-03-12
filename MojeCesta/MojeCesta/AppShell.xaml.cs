@@ -26,8 +26,8 @@ namespace MojeCesta
             Routing.RegisterRoute(nameof(HledaniPage), typeof(HledaniPage));
             Routing.RegisterRoute(nameof(AktualizacePage), typeof(AktualizacePage));
 
-            Task.Run(() => ZkontrolovatAktualizace());
             Task.Run(() => NacistCache());
+            Task.Run(() => ZkontrolovatAktualizace());
         }
 
         public async void ZkontrolovatAktualizace()
@@ -35,7 +35,7 @@ namespace MojeCesta
             // Pokud ještě není načtena databáze, nebo pokud je databáze zastaralá
             if (AktualizaceDat.PosledniAktualizace == null || (AktualizaceDat.AutomatickaAktualizace && DateTime.Now.Subtract(AktualizaceDat.Frekvence) >= AktualizaceDat.PosledniAktualizace))
             {
-                await Navigation.PushModalAsync(new AktualizacePage(true));
+                await Task.Run(() => Navigation.PushModalAsync(new AktualizacePage(true)));
             }
         }
         public async void NacistCache()
@@ -45,6 +45,7 @@ namespace MojeCesta
             {
                 try
                 {
+                    string s = File.ReadAllText(Promenne.CestaSeznamZ);
                     Promenne.Zastavky = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(Promenne.CestaZastavky));
                     Promenne.SeznamZastavek = JsonConvert.DeserializeObject<List<Zastavka>>(File.ReadAllText(Promenne.CestaSeznamZ));
                     Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Linka>>(File.ReadAllText(Promenne.CestaSeznamL));
