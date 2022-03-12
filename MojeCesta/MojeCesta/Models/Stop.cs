@@ -72,6 +72,6 @@ namespace MojeCesta.Models
             Linky = new List<int>();
         }
 
-        public List<int> Linky;
+        public List<int> Linky { get; set; }
     }
 }

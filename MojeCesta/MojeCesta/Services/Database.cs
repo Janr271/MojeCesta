@@ -171,14 +171,18 @@ namespace MojeCesta.Services
             return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Location_type == Stop.LocationType.Station || a.Location_type == Stop.LocationType.Stop)).ToArrayAsync();
         }
 
-        public static Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas, DateTime datum)
+        public static async Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas, DateTime datum)
         {
             List<int> linky = Promenne.SeznamZastavek[Promenne.Zastavky[zastavka.Stop_id]].Linky;
             List<Trip> spoje = new List<Trip>();
 
             for (int i = 0; i < linky.Count; i++)
             {
-                spoje.AddRange(db.Table<Trip>().Where(a => a.Route_id == Promenne.SeznamLinek[linky[i]].Route_id).ToListAsync().Result); 
+                List<Trip> vysledky = await db.Table<Trip>().Where(a => a.Route_id == Promenne.SeznamLinek[linky[i]].Route_id).ToListAsync();
+                for (int y = 0; y < vysledky.Count; y++)
+                {
+                    spoje.Add(vysledky[i]);
+                }
             }
            
             List<string> dnesniSpoje = new List<string>();
@@ -223,7 +227,7 @@ namespace MojeCesta.Services
 
             }
 
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time >= cas && a.Pickup_type != Stop_time.Pickup.NoPickup && dnesniSpoje.Contains(a.Trip_id)).Take(5).OrderBy(a => a.Departure_time).ToArrayAsync();
+            return await db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time >= cas && a.Pickup_type != Stop_time.Pickup.NoPickup && dnesniSpoje.Contains(a.Trip_id)).Take(5).OrderBy(a => a.Departure_time).ToArrayAsync();
         }
 
         public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route route, TimeSpan cas, DateTime datum)

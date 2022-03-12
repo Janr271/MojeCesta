@@ -45,10 +45,11 @@ namespace MojeCesta
             {
                 try
                 {
+                    JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
                     string s = File.ReadAllText(Promenne.CestaSeznamZ);
                     Promenne.Zastavky = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(Promenne.CestaZastavky));
-                    Promenne.SeznamZastavek = JsonConvert.DeserializeObject<List<Zastavka>>(File.ReadAllText(Promenne.CestaSeznamZ));
-                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Linka>>(File.ReadAllText(Promenne.CestaSeznamL));
+                    Promenne.SeznamZastavek = JsonConvert.DeserializeObject<List<Zastavka>>(File.ReadAllText(Promenne.CestaSeznamZ), settings);
+                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Linka>>(File.ReadAllText(Promenne.CestaSeznamL), settings);
                 }
                 catch (JsonException)
                 {

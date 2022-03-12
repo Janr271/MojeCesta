@@ -58,9 +58,9 @@ namespace MojeCesta.Models
             Pesky = pesky;
         }
 
-        public Route_stop[] Zastavky;
-        public Route_stop.Direction Smer;
-        public int Navstiveno;
-        public bool Pesky;
+        public Route_stop[] Zastavky { get; set; }
+        public Route_stop.Direction Smer { get; set; }
+        public int Navstiveno { get; set; }
+        public bool Pesky { get; set; }
     }
 }

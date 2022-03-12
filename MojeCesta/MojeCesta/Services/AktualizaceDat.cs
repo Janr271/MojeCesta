@@ -75,10 +75,8 @@ namespace MojeCesta.Services
                     var vysledek = await Database.Aktualizovat();
                     
                     // Pokud se aktualizace zdařila
-                    
                     if (vysledek.Item1)
                     {
-
                         // Cashování dat k vyhledávání spojení
                         Route_stop[] linky = await Database.NacistLinky();
                         Dictionary<string, int> zastavky = new Dictionary<string, int>();
@@ -158,9 +156,9 @@ namespace MojeCesta.Services
                         try
                         {
                             //Uložit proměnné do souboru
-
-                            File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek), System.Text.Encoding.UTF8);
-                            File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek), System.Text.Encoding.UTF8);
+                            JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+                            File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek, Formatting.Indented, settings), System.Text.Encoding.UTF8);
+                            File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek, Formatting.Indented, settings), System.Text.Encoding.UTF8);
                             File.WriteAllText(Promenne.CestaZastavky, JsonConvert.SerializeObject(zastavky), System.Text.Encoding.UTF8);
 
                             // Uložit datum poslední aktualizace
