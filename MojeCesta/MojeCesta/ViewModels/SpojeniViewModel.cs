@@ -190,7 +190,7 @@ namespace MojeCesta.ViewModels
             {
                 try
                 {
-                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Linka>>(File.ReadAllText(Promenne.CestaSeznamL));
+                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Route>>(File.ReadAllText(Promenne.CestaSeznamL));
                 }
                 catch (JsonException)
                 {
@@ -217,14 +217,14 @@ namespace MojeCesta.ViewModels
                 if(c.IdStanice != cilovaStanId && c.Prestupu < PocetPrestupu)
                 {
                     // Zastávka, na které končí aktuální cesta
-                    Zastavka aktualniZ = Promenne.SeznamZastavek[c.IdStanice];
+                    Stop aktualniZ = Promenne.SeznamZastavek[c.IdStanice];
 
                     // Najít všechny linky, co procházejí vybranou stanicí
                     for (int i = 0; i < aktualniZ.Linky.Count; i++)
                     {
                         int poradiStanice = -1;
                         bool obsahujeCil = false;
-                        Linka aktualniL = Promenne.SeznamLinek[aktualniZ.Linky[i]];
+                        Route aktualniL = Promenne.SeznamLinek[aktualniZ.Linky[i]];
 
                         for (int y = 0; y < aktualniL.Zastavky.Length; y++)
                         {
@@ -294,13 +294,20 @@ namespace MojeCesta.ViewModels
                         }
 
                         Stop_time prijezd = await Database.NajitPrijezd(Promenne.SeznamZastavek[aktualniP.NaStaniciId].Stop_id, odjezd.Trip_id);
+
+                        // Pokud neexistuje příjezd přestat hledat
+                        if (prijezd == null)
+                        {
+                            existujeReseni = false;
+                            break;
+                        }
                         Trip spoj = await Database.NajitSpoj(odjezd.Trip_id);
 
                         // První spoj naplní hlavičku
                         if (prvni)
                         {
                             prvni = false;
-                            spojeni.DoOdjezdu = $"za {odjezd.Departure_time.Subtract(DateTime.Now.TimeOfDay).TotalMinutes}";
+                            spojeni.DoOdjezdu = $"za {(int)odjezd.Departure_time.Subtract(DateTime.Now.TimeOfDay).TotalMinutes} min";
                         }
 
                         // Přidat do výsledků nalezené spojení
@@ -323,8 +330,12 @@ namespace MojeCesta.ViewModels
                 if (existujeReseni)
                 {
                     // Započítat metriku cesty
-                    spojeni.Metrika = $"{cas.Subtract(Cas).TotalMinutes} min, {Math.Round(ujetaVzdalenost, 1)} km";
+                    spojeni.Metrika = $"{(int)cas.Subtract(Cas).TotalMinutes} min, {(int)ujetaVzdalenost} km";
                     noveVysledky.Add(spojeni);
+                }
+                if (noveVysledky.Count > 5)
+                {
+                    break;
                 }
             }
 

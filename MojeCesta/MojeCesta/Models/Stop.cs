@@ -25,6 +25,9 @@ namespace MojeCesta.Models
         public string Asw_node_id { get; set; }
         public string Asw_stop_id { get; set; }
 
+        [Ignore, FieldHidden]
+        public List<int> Linky { get; set; }
+
         public Stop()
         {
 
@@ -32,6 +35,7 @@ namespace MojeCesta.Models
 
         public Stop(Stop s)
         {
+            Linky = new List<int>();
             Stop_id = s.Stop_id;
             Stop_name = s.Stop_name;
             Stop_lat = s.Stop_lat;
@@ -63,15 +67,5 @@ namespace MojeCesta.Models
         {
             return Stop_name;
         }
-    }
-
-    public class Zastavka : Stop
-    {
-        public Zastavka(Stop s) : base(s)
-        {
-            Linky = new List<int>();
-        }
-
-        public List<int> Linky { get; set; }
     }
 }

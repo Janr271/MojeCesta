@@ -21,6 +21,18 @@ namespace MojeCesta.Models
         public bool Is_regional { get; set; }
         public bool Is_substitute_transport { get; set; }
 
+        [Ignore, FieldHidden]
+        public Route_stop[] Zastavky { get; set; }
+
+        [Ignore, FieldHidden]
+        public Route_stop.Direction Smer { get; set; }
+
+        [Ignore, FieldHidden]
+        public int Navstiveno { get; set; }
+
+        [Ignore, FieldHidden]
+        public bool Pesky { get; set; }
+
         public Route()
         {
 
@@ -31,6 +43,16 @@ namespace MojeCesta.Models
             Route_id = r.Route_id;
             Route_short_name = r.Route_short_name;
 
+        }
+
+        public Route(Route_stop[] zastavky, Route_stop.Direction smer, Route r, bool pesky)
+        {
+            Zastavky = zastavky;
+            Smer = smer;
+            Navstiveno = -1;
+            Pesky = pesky;
+            Route_id = r.Route_id;
+            Route_short_name = r.Route_short_name;
         }
 
         public enum RouteType : ushort
@@ -46,21 +68,5 @@ namespace MojeCesta.Models
             Trolleybus = 11,
             Monorail = 12
         }
-    }
-
-    public class Linka : Route
-    {
-        public Linka(Route_stop[] zastavky, Route_stop.Direction smer, Route r, bool pesky) : base(r)
-        {
-            Zastavky = zastavky;
-            Smer = smer;
-            Navstiveno = -1;
-            Pesky = pesky;
-        }
-
-        public Route_stop[] Zastavky { get; set; }
-        public Route_stop.Direction Smer { get; set; }
-        public int Navstiveno { get; set; }
-        public bool Pesky { get; set; }
     }
 }

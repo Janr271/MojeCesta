@@ -80,8 +80,8 @@ namespace MojeCesta.Services
                         // Cashování dat k vyhledávání spojení
                         Route_stop[] linky = await Database.NacistLinky();
                         Dictionary<string, int> zastavky = new Dictionary<string, int>();
-                        List<Zastavka> seznamZastavek = new List<Zastavka>();
-                        List<Linka> seznamLinek = new List<Linka>();
+                        List<Stop> seznamZastavek = new List<Stop>();
+                        List<Route> seznamLinek = new List<Route>();
                         int indexZacatku = 0;
 
                         // Vytvoření seznamu všech linek s jejich zastávkami
@@ -94,7 +94,7 @@ namespace MojeCesta.Services
                                 Route_stop[] a = new Route_stop[pocet];
                                 Array.Copy(linky, indexZacatku, a, 0, pocet);
 
-                                seznamLinek.Add(new Linka(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
+                                seznamLinek.Add(new Route(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
                                 indexZacatku = i;
                             }
                             else if (i == linky.Length - 1)
@@ -104,13 +104,13 @@ namespace MojeCesta.Services
                                 Route_stop[] a = new Route_stop[pocet];
                                 Array.Copy(linky, indexZacatku, a, 0, pocet);
 
-                                seznamLinek.Add(new Linka(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
+                                seznamLinek.Add(new Route(a, a[0].Direction_id, await Database.NajitLinku(a[0].Route_id), false));
                             }
 
                             if (!zastavky.ContainsKey(linky[i].Stop_id))
                             {
                                 zastavky.Add(linky[i].Stop_id, zastavky.Count);
-                                seznamZastavek.Add(new Zastavka(Database.NajitZastavku(linky[i].Stop_id).Result));
+                                seznamZastavek.Add(new Stop(Database.NajitZastavku(linky[i].Stop_id).Result));
                             }
 
                             seznamZastavek[zastavky[linky[i].Stop_id]].Linky.Add(seznamLinek.Count);
@@ -136,12 +136,12 @@ namespace MojeCesta.Services
 
                                 if (d < 250)
                                 {
-                                    seznamLinek.Add(new Linka(new Route_stop[] {
+                                    seznamLinek.Add(new Route(new Route_stop[] {
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 1),
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 2) },
                                             Route_stop.Direction.OneDirection, new Route(), true));
 
-                                    seznamLinek.Add(new Linka(new Route_stop[] {
+                                    seznamLinek.Add(new Route(new Route_stop[] {
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 1),
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 2) },
                                             Route_stop.Direction.OppositeDirection, new Route(), true));

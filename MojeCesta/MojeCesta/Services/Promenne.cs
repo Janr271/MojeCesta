@@ -17,8 +17,8 @@ namespace MojeCesta.Services
         public static List<SpojeniMeziStanicemi> VysledkySpojeni;
 
         // Cashe pro rychlejší vyhledávání spojení
-        public static List<Zastavka> SeznamZastavek;
-        public static List<Linka> SeznamLinek;
+        public static List<Stop> SeznamZastavek;
+        public static List<Route> SeznamLinek;
         public static Dictionary<string, int> Zastavky;
 
         // Cesta k cache

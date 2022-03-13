@@ -126,6 +126,10 @@ namespace MojeCesta.ViewModels
             // Najít všechny nástupiště zvolené stanice
             for (int i = 0; i < stanice.Length; i++)
             {
+                if (!Promenne.Zastavky.ContainsKey(stanice[i].Stop_id))
+                {
+                    continue;
+                }
                 Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas, Datum);
                 List<Odjezd> seznamOdjezdu = new List<Odjezd>();
 

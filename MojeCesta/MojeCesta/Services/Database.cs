@@ -158,7 +158,7 @@ namespace MojeCesta.Services
 
         public static Task<Stop> SpojeniStanicePodleJmena(string jmeno)
         {
-            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Asw_stop_id == "1" || a.Asw_stop_id == "101" || a.Asw_stop_id == "301")).FirstAsync();
+            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Asw_stop_id == "1" || a.Asw_stop_id == "101" || a.Asw_stop_id == "301")).FirstOrDefaultAsync();
         }
 
         public static Task<Stop> ZastavkaPodleJmena(string jmeno)
@@ -178,11 +178,7 @@ namespace MojeCesta.Services
 
             for (int i = 0; i < linky.Count; i++)
             {
-                List<Trip> vysledky = await db.Table<Trip>().Where(a => a.Route_id == Promenne.SeznamLinek[linky[i]].Route_id).ToListAsync();
-                for (int y = 0; y < vysledky.Count; y++)
-                {
-                    spoje.Add(vysledky[i]);
-                }
+                spoje.AddRange(db.QueryAsync<Trip>($"SELECT * FROM Trip WHERE Route_id = '{Promenne.SeznamLinek[linky[i]].Route_id}'").Result);
             }
            
             List<string> dnesniSpoje = new List<string>();
@@ -191,7 +187,7 @@ namespace MojeCesta.Services
             for (int i = 0; i < spoje.Count; i++)
             {
                 Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date >= datum && c.End_date <= datum)
+                if (c.Start_date <= datum && c.End_date >= datum)
                 {
                     switch (datum.DayOfWeek)
                     {
@@ -240,7 +236,7 @@ namespace MojeCesta.Services
             for (int i = 0; i < spoje.Count; i++)
             {
                 Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date >= datum && c.End_date <= datum)
+                if (c.Start_date <= datum && c.End_date >= datum)
                 {
                     switch (datum.DayOfWeek)
                     {
@@ -277,12 +273,11 @@ namespace MojeCesta.Services
             }
 
             // Najít nejbližší odjezd některého spoje
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && dnesniSpoje.Contains(a.Trip_id)).OrderBy(a => a.Departure_time).FirstAsync();
-            //return db.QueryAsync<Stop_time>($"SELECT * FROM Stop_time INNER JOIN Trip ON Stop_time.Trip_id WHERE Stop_time.Stop_id = '{zastavka.Stop_id}' AND Stop_time.Departure_time > '{cas.Ticks}' AND Trip.Route_id = '{route.Route_id}' ORDER BY Stop_time.Departure_time");
+            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && dnesniSpoje.Contains(a.Trip_id)).FirstOrDefaultAsync();
         }
         public static Task<Stop_time> NajitPrijezd(string stopId, string tripId)
         {
-            return db.Table<Stop_time>().Where(a => a.Trip_id == tripId && a.Stop_id == stopId).FirstAsync();
+            return db.Table<Stop_time>().Where(a => a.Trip_id == tripId && a.Stop_id == stopId).FirstOrDefaultAsync();
         }
         public static Task<Trip> NajitSpoj(string id)
         {

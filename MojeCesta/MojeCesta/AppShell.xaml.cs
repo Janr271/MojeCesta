@@ -48,8 +48,8 @@ namespace MojeCesta
                     JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
                     string s = File.ReadAllText(Promenne.CestaSeznamZ);
                     Promenne.Zastavky = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(Promenne.CestaZastavky));
-                    Promenne.SeznamZastavek = JsonConvert.DeserializeObject<List<Zastavka>>(File.ReadAllText(Promenne.CestaSeznamZ), settings);
-                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Linka>>(File.ReadAllText(Promenne.CestaSeznamL), settings);
+                    Promenne.SeznamZastavek = JsonConvert.DeserializeObject<List<Stop>>(File.ReadAllText(Promenne.CestaSeznamZ), settings);
+                    Promenne.SeznamLinek = JsonConvert.DeserializeObject<List<Route>>(File.ReadAllText(Promenne.CestaSeznamL), settings);
                 }
                 catch (JsonException)
                 {
