@@ -21,5 +21,35 @@ namespace MojeCesta.Models
         [FieldConverter(ConverterKind.Date, "yyyyMMdd")]
         public DateTime End_date { get; set; }
 
+        public bool DenVTydnu(DayOfWeek denVTydnu)
+        {
+            switch (denVTydnu)
+            {
+                case DayOfWeek.Monday:
+                    return Monday;
+
+                case DayOfWeek.Tuesday:
+                    return Tuesday;
+
+                case DayOfWeek.Wednesday:
+                    return Wednesday;
+
+                case DayOfWeek.Thursday:
+                    return Thursday;
+
+                case DayOfWeek.Friday:
+                    return Friday;
+
+                case DayOfWeek.Saturday:
+                    return Saturday;
+
+                case DayOfWeek.Sunday:
+                    return Sunday;
+
+                default:
+                    return false;
+            }
+        }
+
     }
 }

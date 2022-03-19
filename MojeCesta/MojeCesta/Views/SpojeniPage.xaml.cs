@@ -1,4 +1,5 @@
-﻿using MojeCesta.Services;
+﻿using MojeCesta.Models;
+using MojeCesta.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -25,10 +26,10 @@ namespace MojeCesta.Views
 
         public void Historie_Tapped(object sender, ItemTappedEventArgs e)
         {
-            if(e.Item is Models.HistorieSpojeni spojeni)
+            if(e.Item is HistorieSpojeni spojeni)
             {
-                spojeniViewModel.ZeZastavky = spojeni.ZeZastavky;
-                spojeniViewModel.NaZastavku = spojeni.NaZastavku;
+                spojeniViewModel.ZeZastavky = new Stop(spojeni.ZeZastavkyId, spojeni.ZeZastavky);
+                spojeniViewModel.NaZastavku = new Stop(spojeni.NaZastavkuId, spojeni.NaZastavku);
 
                 Hledat_Clicked(sender, EventArgs.Empty);
             }
@@ -45,33 +46,33 @@ namespace MojeCesta.Views
 
         private void Zmena_Clicked(object sender, EventArgs e)
         {
-            string tmp = spojeniViewModel.ZeZastavky;
+            var tmp = spojeniViewModel.ZeZastavky;
             spojeniViewModel.ZeZastavky = spojeniViewModel.NaZastavku;
             spojeniViewModel.NaZastavku = tmp;
         }
 
         private async void Hledat_Clicked(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(spojeniViewModel.ZeZastavky))
+            if (String.IsNullOrEmpty(spojeniViewModel.ZeZastavky.Stop_name))
             {
                 await DisplayAlert("Chyba", "Nebyla zadána výchozí stanice!", "OK");
                 return;
             }
 
-            if (String.IsNullOrEmpty(spojeniViewModel.NaZastavku))
+            if (String.IsNullOrEmpty(spojeniViewModel.NaZastavku.Stop_name))
             {
                 await DisplayAlert("Chyba", "Nebyla zadána cílová stanice!", "OK");
                 return;
             }
 
-            if (await Database.ZastavkaPodleJmena(spojeniViewModel.ZeZastavky) == null)
+            if (await Database.NajitZastavku(spojeniViewModel.ZeZastavky.Stop_id) == null)
             {
                 await DisplayAlert("Chyba", "Výchozí stanice nebyla nalezena!", "OK");
 
                 return;
             }
 
-            if (await Database.ZastavkaPodleJmena(spojeniViewModel.NaZastavku) == null)
+            if (await Database.NajitZastavku(spojeniViewModel.NaZastavku.Stop_id) == null)
             {
                 await DisplayAlert("Chyba", "Cílová stanice nebyla nalezena!", "OK");
 
@@ -91,7 +92,7 @@ namespace MojeCesta.Views
         private async void ZeZastavkyS_Focused(object sender, FocusEventArgs e)
         {
             ZeZastavkyS.Unfocus();
-            HledaniPage hledani = new HledaniPage(this, spojeniViewModel.ZeZastavky);
+            HledaniPage hledani = new HledaniPage(this, spojeniViewModel.ZeZastavky.Stop_name);
             await Navigation.PushModalAsync(hledani, false);
             hledani.VybratEntry();
         }
@@ -99,7 +100,7 @@ namespace MojeCesta.Views
         private async void NaZastavkuS_Focused(object sender, FocusEventArgs e)
         {
             NaZastavkuS.Unfocus();
-            HledaniPage hledani = new HledaniPage(this, spojeniViewModel.NaZastavku, true);
+            HledaniPage hledani = new HledaniPage(this, spojeniViewModel.NaZastavku.Stop_name, true);
             await Navigation.PushModalAsync(hledani, false);
             hledani.VybratEntry();
         }

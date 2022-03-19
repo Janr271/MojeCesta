@@ -1,6 +1,7 @@
 ﻿using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using MojeCesta.Services;
+using MojeCesta.Models;
 
 namespace MojeCesta.Views
 {
@@ -21,7 +22,7 @@ namespace MojeCesta.Views
 
         private async void Hledani_Changed(object sender, TextChangedEventArgs e)
         {
-            SeznamStanic.ItemsSource = await Database.HledaniStanicePodleJmena(Hledani.Text);
+            SeznamStanic.ItemsSource = await Database.HledaniStanicePodleJmena(Promenne.Normalizovat(Hledani.Text));
         }
 
         private async void Hledani_Completed(object sender, System.EventArgs e)
@@ -29,17 +30,17 @@ namespace MojeCesta.Views
             // Vrátit hodnotu zpět volajícímu
             if (Rodic is OdjezdyPage odjezdy)
             {
-                odjezdy.odjezdyViewModel.ZeZastavky = Hledani.Text;
+                odjezdy.odjezdyViewModel.ZeZastavky = new Stop(null ,Hledani.Text);
             }
             else if (Rodic is SpojeniPage spojeni)
             {
                 if (NaZastavku)
                 {
-                    spojeni.spojeniViewModel.NaZastavku = Hledani.Text;
+                    spojeni.spojeniViewModel.NaZastavku = new Stop(null, Hledani.Text);
                 }
                 else
                 {
-                    spojeni.spojeniViewModel.ZeZastavky = Hledani.Text;
+                    spojeni.spojeniViewModel.ZeZastavky = new Stop(null, Hledani.Text);
                 }
             }
 
@@ -52,17 +53,17 @@ namespace MojeCesta.Views
             // Vrátit hodnotu zpět volajícímu
             if (Rodic is OdjezdyPage odjezdy)
             {
-                odjezdy.odjezdyViewModel.ZeZastavky = e.Item.ToString();
+                odjezdy.odjezdyViewModel.ZeZastavky = (Stop)e.Item;
             }
             else if (Rodic is SpojeniPage spojeni)
             {
                 if (NaZastavku)
                 {
-                    spojeni.spojeniViewModel.NaZastavku = e.Item.ToString();
+                    spojeni.spojeniViewModel.NaZastavku = (Stop)e.Item;
                 }
                 else
                 {
-                    spojeni.spojeniViewModel.ZeZastavky = e.Item.ToString();
+                    spojeni.spojeniViewModel.ZeZastavky = (Stop)e.Item;
                 }
             }
 

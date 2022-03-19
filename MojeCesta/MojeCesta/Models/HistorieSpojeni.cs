@@ -10,9 +10,11 @@ namespace MojeCesta.Models
 
         }
 
-        public HistorieSpojeni(string zeZastavky, string naZastavku, int pocetPrestupu, DateTime datum, TimeSpan cas)
+        public HistorieSpojeni(string zeZastavkyId, string zeZastavky, string naZastavkuId, string naZastavku, int pocetPrestupu, DateTime datum, TimeSpan cas)
         {
+            ZeZastavkyId = zeZastavkyId;
             ZeZastavky = zeZastavky;
+            NaZastavkuId = naZastavkuId;
             NaZastavku = naZastavku;
             PocetPrestupu = pocetPrestupu;
             Datum = datum;
@@ -21,7 +23,9 @@ namespace MojeCesta.Models
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+        public string ZeZastavkyId { get; set; }
         public string ZeZastavky { get; set; }
+        public string NaZastavkuId { get; set; }
         public string NaZastavku { get; set; }
         public int PocetPrestupu { get; set; }
         public DateTime Datum { get; set; }

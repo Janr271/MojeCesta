@@ -2,7 +2,6 @@
 using MojeCesta.Models;
 using SQLite;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -55,7 +54,7 @@ namespace MojeCesta.Services
                 // Stáhnout soubor z internetu rozzipovat ho a odstranit původní zip
                 using (WebClient client = new WebClient())
                 {
-                    client.DownloadFile(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
+                   await client.DownloadFileTaskAsync(new Uri(@"http://data.pid.cz/PID_GTFS.zip"), cestaKZipu);
                 }
             }
             catch (WebException)
@@ -97,7 +96,7 @@ namespace MojeCesta.Services
                 NaplnitTabulku<Route_stop>("route_stops.txt"),
                 //NaplnitTabulku<Route_sub_agency>("route_sub_agencies.txt"),
                 NaplnitTabulku<Route>("routes.txt"),
-                NaplnitTabulku<Stop>("stops.txt"),
+                NaplnitStanice("stops.txt"),
                 //NaplnitTabulku<Transfer>("transfers.txt"),
                 NaplnitTabulku<Trip>("trips.txt"),
                 //NaplnitTabulku<Shape>("shapes.txt"), 
@@ -122,6 +121,18 @@ namespace MojeCesta.Services
             var engine = new FileHelperEngine<T>();
             engine.Options.IgnoreFirstLines = 1;
             await db.RunInTransactionAsync(tran => { tran.InsertAll(engine.ReadFile(Path.Combine(cestaKeSlozce, soubor))); });
+        }
+
+        private static async Task NaplnitStanice(string soubor)
+        {
+            var engine = new FileHelperEngine<Stop>();
+            engine.Options.IgnoreFirstLines = 1;
+            Stop[] vysledek = engine.ReadFile(Path.Combine(cestaKeSlozce, soubor));
+            for (int i = 0; i < vysledek.Length; i++)
+            {
+                vysledek[i].Search_name = Promenne.Normalizovat(vysledek[i].Stop_name);
+            }
+            await db.RunInTransactionAsync(tran => { tran.InsertAll(vysledek); });
         }
 
         // Smazat všechny tabulky v databázi
@@ -150,27 +161,19 @@ namespace MojeCesta.Services
             await Task.WhenAll(databaze);
         }
 
-        // Vrací výsledky při hledání výchozí / cílové stanice v HledaniPage
-        public static Task<Stop[]> HledaniStanicePodleJmena(string jmeno)
+        // Nápověda stanic v HledaniPage
+        public static Task<List<Stop>> HledaniStanicePodleJmena(string jmeno)
         {
-            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Asw_stop_id == "1" || a.Asw_stop_id == "101" || a.Asw_stop_id == "301")).Take(10).ToArrayAsync();
+            return db.QueryAsync<Stop>($"SELECT Stop_name, Stop_id FROM Stop WHERE Search_name LIKE '%{jmeno}%' AND Stop_id IN (SELECT Stop_id FROM Route_stop) GROUP BY Stop_Name ORDER BY length(Stop_name) LIMIT 10");
         }
 
-        public static Task<Stop> SpojeniStanicePodleJmena(string jmeno)
-        {
-            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Asw_stop_id == "1" || a.Asw_stop_id == "101" || a.Asw_stop_id == "301")).FirstOrDefaultAsync();
-        }
-
-        public static Task<Stop> ZastavkaPodleJmena(string jmeno)
-        {
-            return db.Table<Stop>().FirstAsync(a => a.Stop_name.Contains(jmeno));
-        }
-
+        // Vyhledat ostatní nástupiště v odjezdech ze stanice
         public static Task<Stop[]> ZastavkyPodleJmena(string jmeno)
         {
-            return db.Table<Stop>().Where(a => a.Stop_name.ToLower().Contains(jmeno.ToLower()) && (a.Location_type == Stop.LocationType.Station || a.Location_type == Stop.LocationType.Stop)).ToArrayAsync();
+            return db.Table<Stop>().Where(a => a.Search_name.Contains(jmeno) && (a.Location_type == Stop.LocationType.Station || a.Location_type == Stop.LocationType.Stop || a.Location_type == Stop.LocationType.BoardingArea)).ToArrayAsync();
         }
 
+        // Najít odjezdy z nástupiště v odjezdech ze stanice
         public static async Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas, DateTime datum)
         {
             List<int> linky = Promenne.SeznamZastavek[Promenne.Zastavky[zastavka.Stop_id]].Linky;
@@ -178,7 +181,7 @@ namespace MojeCesta.Services
 
             for (int i = 0; i < linky.Count; i++)
             {
-                spoje.AddRange(db.QueryAsync<Trip>($"SELECT * FROM Trip WHERE Route_id = '{Promenne.SeznamLinek[linky[i]].Route_id}'").Result);
+                spoje.AddRange(await db.QueryAsync<Trip>($"SELECT * FROM Trip WHERE Route_id = '{Promenne.SeznamLinek[linky[i]].Route_id}'"));
             }
            
             List<string> dnesniSpoje = new List<string>();
@@ -187,38 +190,9 @@ namespace MojeCesta.Services
             for (int i = 0; i < spoje.Count; i++)
             {
                 Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date <= datum && c.End_date >= datum)
+                if (c.Start_date <= datum && c.End_date >= datum && c.DenVTydnu(datum.DayOfWeek))
                 {
-                    switch (datum.DayOfWeek)
-                    {
-                        case DayOfWeek.Monday:
-                            if (c.Monday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Tuesday:
-                            if (c.Tuesday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Wednesday:
-                            if (c.Wednesday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Thursday:
-                            if (c.Thursday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Friday:
-                            if (c.Friday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Saturday:
-                            if (c.Saturday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Sunday:
-                            if (c.Sunday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-                    }
+                    dnesniSpoje.Add(spoje[i].Trip_id);
                 }
 
             }
@@ -226,55 +200,30 @@ namespace MojeCesta.Services
             return await db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time >= cas && a.Pickup_type != Stop_time.Pickup.NoPickup && dnesniSpoje.Contains(a.Trip_id)).Take(5).OrderBy(a => a.Departure_time).ToArrayAsync();
         }
 
+        // Najít nejbližší odjezd z nástupiště ve vyhledávání spojení
         public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route route, TimeSpan cas, DateTime datum)
         {
             // Najit seznam spoju na lince
-            List<Trip> spoje = db.Table<Trip>().Where(a => a.Route_id == route.Route_id).ToListAsync().Result;
+            List<Trip> spoje = db.Table<Trip>().Where(a => a.Route_id == route.Route_id && (Route_stop.Direction)a.Direction_id == route.Smer).ToListAsync().Result;
             List<string> dnesniSpoje = new List<string>();
 
             // Kontrola, zda spoj odjíždí ve vybraném termínu
             for (int i = 0; i < spoje.Count; i++)
             {
                 Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date <= datum && c.End_date >= datum)
+                if (c.Start_date <= datum && c.End_date >= datum && c.DenVTydnu(datum.DayOfWeek))
                 {
-                    switch (datum.DayOfWeek)
-                    {
-                        case DayOfWeek.Monday:
-                            if (c.Monday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Tuesday:
-                            if (c.Tuesday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Wednesday:
-                            if (c.Wednesday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Thursday:
-                            if (c.Thursday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Friday:
-                            if (c.Friday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Saturday:
-                            if (c.Saturday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-
-                        case DayOfWeek.Sunday:
-                            if (c.Sunday) { dnesniSpoje.Add(spoje[i].Trip_id); }
-                            break;
-                    }
+                    dnesniSpoje.Add(spoje[i].Trip_id);
                 }
-                
             }
 
+            TimeSpan maxCas = cas.Add(new TimeSpan(2, 0, 0));
+
             // Najít nejbližší odjezd některého spoje
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && dnesniSpoje.Contains(a.Trip_id)).FirstOrDefaultAsync();
+            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && a.Departure_time < maxCas && dnesniSpoje.Contains(a.Trip_id)).OrderBy(a => a.Departure_time).FirstOrDefaultAsync();
         }
+
+        // Najít příjezd spoje do vybrané stanice ve vyhledávání spojení
         public static Task<Stop_time> NajitPrijezd(string stopId, string tripId)
         {
             return db.Table<Stop_time>().Where(a => a.Trip_id == tripId && a.Stop_id == stopId).FirstOrDefaultAsync();
@@ -295,6 +244,8 @@ namespace MojeCesta.Services
         {
             return db.FindAsync<Calendar>(id);
         }
+
+        // Načíst všechny linky při aktualizaci databáze
         public static Task<Route_stop[]> NacistLinky()
         {
             return db.Table<Route_stop>().ToArrayAsync();

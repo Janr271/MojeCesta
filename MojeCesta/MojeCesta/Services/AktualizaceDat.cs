@@ -134,13 +134,22 @@ namespace MojeCesta.Services
 
                                 double d = R * Math.Sqrt(Math.Abs(1.0 - cos1 * Math.Cos(lat2) * Math.Cos(lon1 - lon2) - sin1 * Math.Sin(lat2)));
 
+                                // Pokud je vzdálenost mezi stanicemi menší než 250m vytvořit pěší spojení
                                 if (d < 250)
                                 {
+                                    // Zaregistrovat linku na zastávce
+                                    seznamZastavek[i].Linky.Add(seznamLinek.Count);
+
+                                    // Přidat linku do seznamu
                                     seznamLinek.Add(new Route(new Route_stop[] {
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 1),
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 2) },
                                             Route_stop.Direction.OneDirection, new Route(), true));
 
+                                    // Zaregistrovat opačnou linku na druhé zastávce
+                                    seznamZastavek[y].Linky.Add(seznamLinek.Count);
+
+                                    // Přidat opačnou linku do seznamu
                                     seznamLinek.Add(new Route(new Route_stop[] {
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[y].Stop_id, 1),
                                 new Route_stop("0",Route_stop.Direction.OneDirection, seznamZastavek[i].Stop_id, 2) },
@@ -156,9 +165,8 @@ namespace MojeCesta.Services
                         try
                         {
                             //Uložit proměnné do souboru
-                            JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
-                            File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek, Formatting.Indented, settings), System.Text.Encoding.UTF8);
-                            File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek, Formatting.Indented, settings), System.Text.Encoding.UTF8);
+                            File.WriteAllText(Promenne.CestaSeznamZ, JsonConvert.SerializeObject(seznamZastavek), System.Text.Encoding.UTF8);
+                            File.WriteAllText(Promenne.CestaSeznamL, JsonConvert.SerializeObject(seznamLinek), System.Text.Encoding.UTF8);
                             File.WriteAllText(Promenne.CestaZastavky, JsonConvert.SerializeObject(zastavky), System.Text.Encoding.UTF8);
 
                             // Uložit datum poslední aktualizace

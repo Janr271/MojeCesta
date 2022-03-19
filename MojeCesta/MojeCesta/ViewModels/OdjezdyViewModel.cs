@@ -19,12 +19,12 @@ namespace MojeCesta.ViewModels
         }
 
         private bool aktivita;
-        private string zeZastavky = string.Empty;
+        private Stop zeZastavky = new Stop(null,"");
         private DateTime datum;
         private TimeSpan cas;
         private List<HistorieOdjezdu> historie;
 
-        public string ZeZastavky
+        public Stop ZeZastavky
         {
             get => zeZastavky;
             set
@@ -120,7 +120,7 @@ namespace MojeCesta.ViewModels
             // Spustit indikátor o aktivitě pro uživatele
             Aktivita = true;
 
-            Stop[] stanice = Database.ZastavkyPodleJmena(ZeZastavky).Result;
+            Stop[] stanice = await Database.ZastavkyPodleJmena(Promenne.Normalizovat(ZeZastavky.Stop_name));
             List<OdjezdyZeStanice> noveVysledky = new List<OdjezdyZeStanice>();
 
             // Najít všechny nástupiště zvolené stanice
@@ -133,19 +133,17 @@ namespace MojeCesta.ViewModels
                 Stop_time[] odjezdy = await Database.NajitOdjezdy(stanice[i], Cas, Datum);
                 List<Odjezd> seznamOdjezdu = new List<Odjezd>();
 
-                // Najít odjezdy z vybraného nástupiště nebo vypsat chybu
+                // Najít odjezdy z vybraného nástupiště pokud existují
                 for (int y = 0; y < odjezdy.Length; y++)
                 {
                     Trip spoj = await Database.NajitSpoj(odjezdy[y].Trip_id);
                     Route linka = await Database.NajitLinku(spoj.Route_id);
                     seznamOdjezdu.Add(new Odjezd(linka.Route_short_name, $"směr {spoj.Trip_headsign}", odjezdy[y].Departure_time.ToString(@"hh\:mm")));
                 }
-                if(seznamOdjezdu.Count == 0)
+                if(seznamOdjezdu.Count != 0)
                 {
-                    seznamOdjezdu.Add(new Odjezd("", "Nebyly nalezeny žádné odjezdy", ""));
+                    noveVysledky.Add(new OdjezdyZeStanice($"{stanice[i].Stop_name} {stanice[i].Platform_code}", seznamOdjezdu));
                 }
-
-                noveVysledky.Add(new OdjezdyZeStanice($"{stanice[i].Stop_name} {stanice[i].Platform_code}", seznamOdjezdu));
             }
 
             // Vypsat chybu v případě, že nebyly nalezeny žádné odjezdy
@@ -160,7 +158,7 @@ namespace MojeCesta.ViewModels
             await Device.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(nameof(Views.VysledkyOdjezduPage)));
 
             // Uložit dotaz do historie a aktualizovat seznam
-            await Database.UlozitOdjezd(new HistorieOdjezdu(ZeZastavky, Datum, Cas));
+            await Database.UlozitOdjezd(new HistorieOdjezdu(ZeZastavky.Stop_id, ZeZastavky.Stop_name, Datum, Cas));
             await Task.Run(() => AktualizovatHistorii());
 
             // Vypnout indikaci aktivity

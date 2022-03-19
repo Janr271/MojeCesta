@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using MojeCesta.Services;
+using MojeCesta.Models;
 
 namespace MojeCesta.Views
 {
@@ -26,13 +27,13 @@ namespace MojeCesta.Views
 
         private async void Hledat_Clicked(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(odjezdyViewModel.ZeZastavky))
+            if (String.IsNullOrEmpty(odjezdyViewModel.ZeZastavky.Stop_name))
             {
                 await DisplayAlert("Chyba", "Nebyla zadána výchozí stanice!", "OK");
                 return;
             }
 
-            if (await Database.ZastavkaPodleJmena(odjezdyViewModel.ZeZastavky) == null)
+            if (await Database.NajitZastavku(odjezdyViewModel.ZeZastavky.Stop_id) == null)
             {
                 await DisplayAlert("Chyba", "Výchozí stanice nebyla nalezena!", "OK");
                
@@ -56,14 +57,22 @@ namespace MojeCesta.Views
 
         private void Historie_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            odjezdyViewModel.ZeZastavky = ((Models.HistorieOdjezdu)e.Item).ZeZastavky;
-            Hledat_Clicked(sender, EventArgs.Empty);
+            if (e.Item is HistorieOdjezdu odjezd)
+            {
+                odjezdyViewModel.ZeZastavky = new Stop(odjezd.ZeZastavkyId, odjezd.ZeZastavky);
+
+                Hledat_Clicked(sender, EventArgs.Empty);
+            }
+            else
+            {
+                throw new ArgumentException("Vybraný prvek musí být typu HistorieSpojení");
+            }
         }
 
         private async void ZeZastavky_Focused(object sender, FocusEventArgs e)
         {
             ZeZastavkyO.Unfocus();
-            HledaniPage hledani = new HledaniPage(this, odjezdyViewModel.ZeZastavky);
+            HledaniPage hledani = new HledaniPage(this, odjezdyViewModel.ZeZastavky.Stop_name);
             await Navigation.PushModalAsync(hledani, false);
             hledani.VybratEntry();
         }

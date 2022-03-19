@@ -6,6 +6,8 @@ using Xamarin.Forms;
 using MojeCesta.Models;
 using System;
 using System.IO;
+using System.Text;
+using System.Globalization;
 
 namespace MojeCesta.Services
 {
@@ -52,6 +54,23 @@ namespace MojeCesta.Services
             {
                 App.Current.UserAppTheme = OSAppTheme.Light;
             }
+        }
+
+        public static string Normalizovat(string text)
+        {
+            string normalizovano = text.ToLower().Normalize(NormalizationForm.FormD);
+            StringBuilder s = new StringBuilder(normalizovano.Length);
+
+            for (int i = 0; i < normalizovano.Length; i++)
+            {
+                char c = normalizovano[i];
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    s.Append(c);
+                }
+            }
+
+            return s.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

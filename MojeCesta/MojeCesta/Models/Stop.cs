@@ -11,6 +11,8 @@ namespace MojeCesta.Models
         public string Stop_id { get; set; } 
         [FieldQuoted]
         public string Stop_name { get; set; }
+        [FieldHidden]
+        public string Search_name { get; set; }
         public double Stop_lat { get; set; } 
         public double Stop_lon { get; set; }
         [FieldQuoted]
@@ -46,6 +48,12 @@ namespace MojeCesta.Models
             Platform_code = s.Platform_code;
             Asw_node_id = s.Asw_node_id;
             Asw_stop_id = s.Asw_stop_id;
+        }
+
+        public Stop(string id, string jmeno)
+        {
+            Stop_id = id;
+            Stop_name = jmeno;
         }
 
         public enum LocationType

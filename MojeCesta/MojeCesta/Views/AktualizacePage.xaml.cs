@@ -23,7 +23,7 @@ namespace MojeCesta.Views
 
         private async void Button_Clicked(object sender, System.EventArgs e)
         {
-            await Services.AktualizaceDat.Aktualizovat(this);
+           await Services.AktualizaceDat.Aktualizovat(this);
         }
 
         public void Zavrit()

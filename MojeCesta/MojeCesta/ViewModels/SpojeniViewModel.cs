@@ -21,8 +21,8 @@ namespace MojeCesta.ViewModels
             Task.Run(() => AktualizovatHistorii());
         }
 
-        private string zeZastavky = string.Empty;
-        private string naZastavku = string.Empty;
+        private Stop zeZastavky = new Stop(null, "");
+        private Stop naZastavku = new Stop(null, "");
         private DateTime datum;
         private TimeSpan cas;
         private bool odjezd;
@@ -30,7 +30,7 @@ namespace MojeCesta.ViewModels
         private int pocetPrestupu;
         private List<HistorieSpojeni> historie;
 
-        public string ZeZastavky
+        public Stop ZeZastavky
         {
             get => zeZastavky;
             set
@@ -43,7 +43,7 @@ namespace MojeCesta.ViewModels
             }
         }
 
-        public string NaZastavku
+        public Stop NaZastavku
         {
             get => naZastavku;
             set
@@ -200,10 +200,8 @@ namespace MojeCesta.ViewModels
 
             List<Cesta> reseni = new List<Cesta>();
             Queue<Cesta> zasobnik = new Queue<Cesta>();
-            Stop vychoziStanice = Database.SpojeniStanicePodleJmena(ZeZastavky).Result;
-            Stop cilovaStanice = Database.SpojeniStanicePodleJmena(NaZastavku).Result;
-            int vychoziStanId = Promenne.Zastavky[vychoziStanice.Stop_id];
-            int cilovaStanId = Promenne.Zastavky[cilovaStanice.Stop_id];
+            int vychoziStanId = Promenne.Zastavky[ZeZastavky.Stop_id];
+            int cilovaStanId = Promenne.Zastavky[NaZastavku.Stop_id];
             // Přidat výchozí stanici do zásobníku
             zasobnik.Enqueue(new Cesta(vychoziStanId, new List<Presun>(), 0));
 
@@ -267,76 +265,107 @@ namespace MojeCesta.ViewModels
 
             // Najít odjezdy spojů na nalezených trasách
             List<SpojeniMeziStanicemi> noveVysledky = new List<SpojeniMeziStanicemi>();
-            bool existujeReseni = true;
 
-            // Pro všechna nalezená řešení
-            for (int i = 0; i < reseni.Count && existujeReseni; i++)
+            // Pokud existuje nějaké řešení
+            if(reseni.Count > 0)
             {
+                int i = 0;
                 TimeSpan cas = Cas;
-                double ujetaVzdalenost = 0;
-                SpojeniMeziStanicemi spojeni = new SpojeniMeziStanicemi();
-                bool prvni = true;
+                bool existujeReseni = true;
 
-                // Projít všechny dílčí spoje
-                for (int y = 0; y < reseni[i].ListPresunu.Count && existujeReseni; y++)
+                // Projít nalezená řešení a spočítat odjezdy
+                do
                 {
-                    Presun aktualniP = reseni[i].ListPresunu[y];
-                    // Nezapočítávat pěší přechody
-                    if (!Promenne.SeznamLinek[aktualniP.LinkaId].Pesky)
+                    TimeSpan pocatecniCas;
+                    Stop_time odjezd, prijezd = new Stop_time();
+                    double ujetaVzdalenost = 0;
+                    SpojeniMeziStanicemi spojeni = new SpojeniMeziStanicemi();
+                    bool prvni = true;
+
+                    // Projít všechny dílčí spoje
+                    for (int y = 0; y < reseni[i].ListPresunu.Count && existujeReseni; y++)
                     {
-                        Stop_time odjezd = await Database.NajitNejblizsiOdjezd(Promenne.SeznamZastavek[aktualniP.ZeStaniceId], Promenne.SeznamLinek[aktualniP.LinkaId], cas, Datum);
-
-                        // Pokud neexistuje odjezd přestat hledat
-                        if (odjezd == null)
+                        Presun aktualniP = reseni[i].ListPresunu[y];
+                        // Nezapočítávat pěší přechody
+                        if (!Promenne.SeznamLinek[aktualniP.LinkaId].Pesky)
                         {
-                            existujeReseni = false;
+                            odjezd = await Database.NajitNejblizsiOdjezd(Promenne.SeznamZastavek[aktualniP.ZeStaniceId], Promenne.SeznamLinek[aktualniP.LinkaId], cas, Datum);
+
+                            // Pokud neexistuje odjezd přestat hledat
+                            if (odjezd == null)
+                            {
+                                existujeReseni = false;
+                                break;
+                            }
+
+                            prijezd = await Database.NajitPrijezd(Promenne.SeznamZastavek[aktualniP.NaStaniciId].Stop_id, odjezd.Trip_id);
+
+                            // Pokud neexistuje příjezd přestat hledat
+                            if (prijezd == null)
+                            {
+                                existujeReseni = false;
+                                break;
+                            }
+                            Trip spoj = await Database.NajitSpoj(odjezd.Trip_id);
+
+                            // První spoj naplní hlavičku
+                            if (prvni)
+                            {
+                                prvni = false;
+                                pocatecniCas = odjezd.Departure_time;
+                                TimeSpan doOdjezdu = new DateTime(Datum.Year, Datum.Month, pocatecniCas.Days > 0 ? Datum.Day + 1 : Datum.Day, pocatecniCas.Hours, pocatecniCas.Minutes, pocatecniCas.Seconds).Subtract(DateTime.Now);
+                                spojeni.DoOdjezdu = $"{(doOdjezdu > TimeSpan.Zero ? "za" : "před")} " +
+                                    $"{(doOdjezdu.Days > 0 ? $"{Math.Abs(doOdjezdu.Days)} {(doOdjezdu.Days > 1 ? (doOdjezdu.Days < 5 ? "dny" : "dni") : "den")} " : "")}" +
+                                    $"{(doOdjezdu.Hours > 0 ? $"{Math.Abs(doOdjezdu.Hours)} hod " : "")}" +
+                                    $"{(doOdjezdu.Minutes > 0 ? $"{Math.Abs(doOdjezdu.Minutes)} min" : "")}";
+                            }
+
+                            // Přidat do výsledků nalezené spojení
+                            spojeni.Add(new Spojeni(Promenne.SeznamLinek[aktualniP.LinkaId].Route_short_name,
+                                                     $"směr {spoj.Trip_headsign}",
+                                                     Promenne.SeznamZastavek[aktualniP.ZeStaniceId].Stop_name,
+                                                     Promenne.SeznamZastavek[aktualniP.NaStaniciId].Stop_name,
+                                                     odjezd.Departure_time.ToString(@"hh\:mm"),
+                                                     prijezd.Arrival_time.ToString(@"hh\:mm"),
+                                                     y == reseni[i].ListPresunu.Count - 1 ? "" : "přestup asi 3 min"));
+                            
+                            // Posunout čas pro vyhledávání navazujícího odjezdu
+                            cas = prijezd.Arrival_time.Add(new TimeSpan(0, 3, 0));
+
+                            // Připočíst celkovou ujetou vzdálenost
+                            ujetaVzdalenost += (double)prijezd.Shape_dist_traveled - (double)odjezd.Shape_dist_traveled;
+                        }
+                    }
+
+                    if (existujeReseni)
+                    {
+                        // Započítat metriku cesty
+                        spojeni.Metrika = $"{(int)prijezd.Arrival_time.Subtract(pocatecniCas).TotalMinutes} min, {(int)ujetaVzdalenost} km";
+                        noveVysledky.Add(spojeni);
+                    }
+
+                    // Pokud se jedná o poslední možné řešení, projít seznam znovu s pozdějším časem, jinak přejít na další řešení
+                    if (i == reseni.Count - 1)
+                    {
+                        // Pokud se řešení nedaří najít, ukončit
+                        if (noveVysledky.Count == 0)
+                        {
                             break;
                         }
 
-                        Stop_time prijezd = await Database.NajitPrijezd(Promenne.SeznamZastavek[aktualniP.NaStaniciId].Stop_id, odjezd.Trip_id);
-
-                        // Pokud neexistuje příjezd přestat hledat
-                        if (prijezd == null)
-                        {
-                            existujeReseni = false;
-                            break;
-                        }
-                        Trip spoj = await Database.NajitSpoj(odjezd.Trip_id);
-
-                        // První spoj naplní hlavičku
-                        if (prvni)
-                        {
-                            prvni = false;
-                            spojeni.DoOdjezdu = $"za {(int)odjezd.Departure_time.Subtract(DateTime.Now.TimeOfDay).TotalMinutes} min";
-                        }
-
-                        // Přidat do výsledků nalezené spojení
-                        spojeni.Add(new Spojeni(Promenne.SeznamLinek[aktualniP.LinkaId].Route_short_name,
-                                                 $"směr {spoj.Trip_headsign}",
-                                                 Promenne.SeznamZastavek[aktualniP.ZeStaniceId].Stop_name,
-                                                 Promenne.SeznamZastavek[aktualniP.NaStaniciId].Stop_name,
-                                                 odjezd.Departure_time.ToString(@"hh\:mm"),
-                                                 prijezd.Arrival_time.ToString(@"hh\:mm"),
-                                                 "přestup asi 3 min"));
-
-                        // Posunout čas pro vyhledávání navazujícího odjezdu
-                        cas = prijezd.Arrival_time.Add(new TimeSpan(0, 3, 0));
-
-                        // Připočíst celkovou ujetou vzdálenost
-                        ujetaVzdalenost += (double)prijezd.Shape_dist_traveled - (double)odjezd.Shape_dist_traveled;
+                        i = 0;
+                        cas = pocatecniCas.Add(new TimeSpan(0, 3, 0));
+                        existujeReseni = true;
+                    }
+                    else
+                    {
+                        i++;
+                        cas = Cas;
+                        existujeReseni = true;
                     }
                 }
-
-                if (existujeReseni)
-                {
-                    // Započítat metriku cesty
-                    spojeni.Metrika = $"{(int)cas.Subtract(Cas).TotalMinutes} min, {(int)ujetaVzdalenost} km";
-                    noveVysledky.Add(spojeni);
-                }
-                if (noveVysledky.Count > 5)
-                {
-                    break;
-                }
+                // Opakovat dokud nebude nalezeno určité množství výsledků, 
+                while (noveVysledky.Count < 6);
             }
 
             if(noveVysledky.Count == 0)
@@ -356,7 +385,7 @@ namespace MojeCesta.ViewModels
             await Device.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(nameof(Views.VysledkySpojeniPage)));
 
             // Uložit dotaz do historie a aktualizovat seznam
-            await Database.UlozitSpojeni(new HistorieSpojeni(ZeZastavky, NaZastavku, PocetPrestupu, Datum, Cas));
+            await Database.UlozitSpojeni(new HistorieSpojeni(ZeZastavky.Stop_id, ZeZastavky.Stop_name, NaZastavku.Stop_id, NaZastavku.Stop_name, PocetPrestupu, Datum, Cas));
             await Task.Run(() => AktualizovatHistorii());
 
             // Vypnout indikaci aktivity

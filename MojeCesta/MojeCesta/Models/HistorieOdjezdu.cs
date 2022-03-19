@@ -9,8 +9,9 @@ namespace MojeCesta.Models
         {
 
         }
-        public HistorieOdjezdu(string zeZastavky, DateTime datum, TimeSpan cas)
+        public HistorieOdjezdu(string zeZastavkyId, string zeZastavky, DateTime datum, TimeSpan cas)
         {
+            ZeZastavkyId = zeZastavkyId;
             ZeZastavky = zeZastavky;
             Datum = datum;
             Cas = cas;
@@ -18,6 +19,7 @@ namespace MojeCesta.Models
 
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+        public string ZeZastavkyId { get; set; }
         public string ZeZastavky { get; set; }
         public DateTime Datum { get; set; }
         public TimeSpan Cas { get; set; }
