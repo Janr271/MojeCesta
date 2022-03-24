@@ -88,7 +88,7 @@ namespace MojeCesta.Services
                         {
                             if (i != 0 && (linky[i].Route_id != linky[i - 1].Route_id || linky[i].Direction_id != linky[i - 1].Direction_id))
                             {
-                                int pocet = i - (indexZacatku + 1);
+                                int pocet = i - indexZacatku;
 
                                 Route_stop[] a = new Route_stop[pocet];
                                 Array.Copy(linky, indexZacatku, a, 0, pocet);
