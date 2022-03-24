@@ -49,7 +49,7 @@ namespace MojeCesta.Models
         {
             Zastavky = zastavky;
             Smer = smer;
-            Navstiveno = -1;
+            Navstiveno = zastavky.Length;
             Pesky = pesky;
             Route_id = r.Route_id;
             Route_short_name = r.Route_short_name;

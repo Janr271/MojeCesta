@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MojeCesta.Models
 {
@@ -11,6 +10,8 @@ namespace MojeCesta.Models
         }
         public string DoOdjezdu { get; set; }
         public string Metrika { get; set; }
+
+        public DateTime Odjezd { get; set; }
     }
 
     public class Spojeni

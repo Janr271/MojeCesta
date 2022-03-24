@@ -12,7 +12,7 @@
     </ContentPage.BindingContext>
     
     <ContentPage.Content>
-        <ListView ItemsSource="{Binding Vysledky}" SelectionMode="None" RowHeight="320" SeparatorVisibility="None" >
+        <ListView ItemsSource="{Binding Vysledky}" SelectionMode="None" HasUnevenRows="True" SeparatorVisibility="None" >
 
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:SpojeniMeziStanicemi">
@@ -20,54 +20,47 @@
 
                         <Frame>
                             <StackLayout Margin="15,5,15,5">
+                                
+                                <StackLayout Orientation="Horizontal">
+                                    <Label Margin="5" Text="{Binding DoOdjezdu}" HorizontalOptions="StartAndExpand" />
+                                    <Label Margin="5" Text="{Binding Metrika}" HorizontalOptions="End" />
+                                </StackLayout>
+                                <StackLayout BindableLayout.ItemsSource="{Binding .}">
 
-                                <ListView ItemsSource="{Binding .}" SelectionMode="None" HasUnevenRows="True">
+                                    <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="model:Spojeni">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
 
-                                    <ListView.Header>
-                                        <StackLayout Orientation="Horizontal">
-                                            <Label Margin="5" Text="{Binding DoOdjezdu}" HorizontalOptions="StartAndExpand" />
-                                            <Label Margin="5" Text="{Binding Metrika}" HorizontalOptions="End" />
-                                        </StackLayout>
-                                    </ListView.Header>
-
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate x:DataType="model:Spojeni">
-                                            <ViewCell>
-
-                                                <Grid Padding="5">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="5*"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <Label Text="{Binding Linka}" FontAttributes="Bold"
+                                            <Label Text="{Binding Linka}" FontAttributes="Bold"
                                                            Grid.Column="0" Grid.Row="0"/>
-                                                    <Label Text="{Binding Smer}"
+                                            <Label Text="{Binding Smer}"
                                                            Grid.Column="1" Grid.Row="0"/>
-                                                    
-                                                    <Label Text="{Binding ZeZastavky}"
+
+                                            <Label Text="{Binding ZeZastavky}"
                                                            Grid.Column="1" Grid.Row="1"/>
-                                                    
-                                                    <Label Text="{Binding Odjezd}" VerticalOptions="End"
+
+                                            <Label Text="{Binding Odjezd}" VerticalOptions="End"
                                                            Grid.Column="2" Grid.Row="1"/>
 
-                                                    <Label Text="{Binding NaZastavku}"
+                                            <Label Text="{Binding NaZastavku}"
                                                            Grid.Column="1" Grid.Row="2"/>
-                                                    
-                                                    <Label Text="{Binding Prijezd}" VerticalOptions="End"
+
+                                            <Label Text="{Binding Prijezd}" VerticalOptions="End"
                                                            Grid.Column="2" Grid.Row="2"/>
 
-                                                    <Label Text="{Binding Prestup}"
+                                            <Label Text="{Binding Prestup}"
                                                            Grid.Column="1" Grid.Row="3"/>
-                                                </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
 
-                                            </ViewCell>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-
-                                </ListView>
-
+                            </StackLayout>
+                                
                             </StackLayout>
                         </Frame>
 

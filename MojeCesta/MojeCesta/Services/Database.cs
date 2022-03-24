@@ -201,7 +201,7 @@ namespace MojeCesta.Services
         }
 
         // Najít nejbližší odjezd z nástupiště ve vyhledávání spojení
-        public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route route, TimeSpan cas, DateTime datum)
+        public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route route, DateTime datum)
         {
             // Najit seznam spoju na lince
             List<Trip> spoje = db.Table<Trip>().Where(a => a.Route_id == route.Route_id && (Route_stop.Direction)a.Direction_id == route.Smer).ToListAsync().Result;
@@ -217,7 +217,8 @@ namespace MojeCesta.Services
                 }
             }
 
-            TimeSpan maxCas = cas.Add(new TimeSpan(2, 0, 0));
+            TimeSpan cas = datum.TimeOfDay;
+            TimeSpan maxCas = datum.AddHours(2).TimeOfDay;
 
             // Najít nejbližší odjezd některého spoje
             return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && a.Departure_time < maxCas && dnesniSpoje.Contains(a.Trip_id)).OrderBy(a => a.Departure_time).FirstOrDefaultAsync();
@@ -248,7 +249,7 @@ namespace MojeCesta.Services
         // Načíst všechny linky při aktualizaci databáze
         public static Task<Route_stop[]> NacistLinky()
         {
-            return db.Table<Route_stop>().ToArrayAsync();
+            return db.Table<Route_stop>().OrderBy(a => a.Route_id).ThenBy(a => a.Direction_id).ThenBy(a => a.Stop_sequence).ToArrayAsync();
         }
 
         // Načítání a ukládání historie vyhledávání

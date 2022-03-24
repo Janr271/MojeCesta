@@ -110,7 +110,7 @@
                    Grid.Column="0"
                    Grid.ColumnSpan="3"/>
 
-            <ActivityIndicator IsRunning="{Binding Aktivita}" Grid.Row="6" Grid.ColumnSpan="3" HorizontalOptions="Center"/>
+            <ActivityIndicator IsRunning="{Binding Aktivita}" Color="{Binding Barva}" Grid.Row="6" Grid.ColumnSpan="3" HorizontalOptions="Center"/>
 
             <ListView ItemTapped="Historie_Tapped"
                       ItemsSource="{Binding Historie}"

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Xamarin.Essentials;
 using Newtonsoft.Json;
 using MojeCesta.Models;
-using Xamarin.Forms;
-using System.Threading.Tasks;
 
 namespace MojeCesta.Services
 {

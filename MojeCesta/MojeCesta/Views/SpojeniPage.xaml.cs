@@ -53,6 +53,12 @@ namespace MojeCesta.Views
 
         private async void Hledat_Clicked(object sender, EventArgs e)
         {
+            if (Promenne.SeznamZastavek == null || Promenne.SeznamLinek == null)
+            {
+                await DisplayAlert("Chyba", "Cache ještě nebyla načtena!", "OK");
+                return;
+            }
+
             if (String.IsNullOrEmpty(spojeniViewModel.ZeZastavky.Stop_name))
             {
                 await DisplayAlert("Chyba", "Nebyla zadána výchozí stanice!", "OK");

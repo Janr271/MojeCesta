@@ -120,11 +120,23 @@ namespace MojeCesta.ViewModels
             // Spustit indikátor o aktivitě pro uživatele
             Aktivita = true;
 
-            Stop[] stanice = await Database.ZastavkyPodleJmena(Promenne.Normalizovat(ZeZastavky.Stop_name));
+            //Stop[] stanice = await Database.ZastavkyPodleJmena(Promenne.Normalizovat(ZeZastavky.Stop_name));
             List<OdjezdyZeStanice> noveVysledky = new List<OdjezdyZeStanice>();
+            int stanId = Promenne.Zastavky[ZeZastavky.Stop_id];
+
+            // Najít všechny podzastávky
+            List<Stop> stanice = new List<Stop>();
+            stanice.Add(Promenne.SeznamZastavek[stanId]);
+            for (int i = 0; i < Promenne.SeznamZastavek[stanId].Linky.Count; i++)
+            {
+                if (Promenne.SeznamLinek[Promenne.SeznamZastavek[stanId].Linky[i]].Pesky)
+                {
+                    stanice.Add(Promenne.SeznamZastavek[Promenne.Zastavky[Promenne.SeznamLinek[Promenne.SeznamZastavek[stanId].Linky[i]].Zastavky[1].Stop_id]]);
+                }
+            }
 
             // Najít všechny nástupiště zvolené stanice
-            for (int i = 0; i < stanice.Length; i++)
+            for (int i = 0; i < stanice.Count; i++)
             {
                 if (!Promenne.Zastavky.ContainsKey(stanice[i].Stop_id))
                 {
