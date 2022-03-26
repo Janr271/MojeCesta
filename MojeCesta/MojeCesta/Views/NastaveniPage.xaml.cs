@@ -18,7 +18,7 @@ namespace MojeCesta.Views
 
         private async void Button_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new AktualizacePage(false));
+            await Navigation.PushModalAsync(new AktualizacePage(true));
         }
     }
 }

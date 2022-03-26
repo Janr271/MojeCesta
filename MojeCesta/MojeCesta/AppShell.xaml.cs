@@ -35,7 +35,7 @@ namespace MojeCesta
             // Pokud ještě není načtena databáze, nebo pokud je databáze zastaralá
             if (AktualizaceDat.PosledniAktualizace == null || (AktualizaceDat.AutomatickaAktualizace && DateTime.Now.Subtract(AktualizaceDat.Frekvence) >= AktualizaceDat.PosledniAktualizace))
             {
-                await Task.Run(() => Navigation.PushModalAsync(new AktualizacePage(true)));
+                await Navigation.PushModalAsync(new AktualizacePage(true));
             }
         }
         public async void NacistCache()

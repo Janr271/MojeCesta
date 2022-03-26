@@ -29,11 +29,9 @@
     <TabBar>
         <ShellContent Title="Spojení" 
                       Icon="walk_white.png" 
-                      Route="SpojeniPage" 
                       ContentTemplate="{DataTemplate local:SpojeniPage}" />
         <ShellContent Title="Odjezdy" 
                       Icon="bus_white.png" 
-                      Route="OdjezdyPage" 
                       ContentTemplate="{DataTemplate local:OdjezdyPage}" />
     </TabBar>
 

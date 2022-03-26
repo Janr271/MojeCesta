@@ -32,7 +32,7 @@
             <ActivityIndicator IsRunning="{Binding Aktivita}" Grid.Row="3" Grid.ColumnSpan="2" HorizontalOptions="Center"/>
 
             <Entry x:Name="ZeZastavkyO"
-                   Text="{Binding ZeZastavky}"
+                   Text="{Binding ZeZastavky, Mode=OneWay}"
                    Placeholder="Výchozí zastávka"
                    Grid.Row="0"
                    Grid.Column="0"

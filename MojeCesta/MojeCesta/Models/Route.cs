@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using FileHelpers;
+using System.Collections.Generic;
 
 namespace MojeCesta.Models
 {
@@ -32,6 +33,9 @@ namespace MojeCesta.Models
 
         [Ignore, FieldHidden]
         public bool Pesky { get; set; }
+
+        [Ignore, FieldHidden]
+        public List<string> DnesniSpoje { get; set; }
 
         public Route()
         {

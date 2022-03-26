@@ -45,7 +45,8 @@
             <Entry     x:Name="ZeZastavkyS"
                        Focused="ZeZastavkyS_Focused"
                        Placeholder="Výchozí zastávka"
-                       Text="{Binding ZeZastavky}"
+                       
+                       Text="{Binding ZeZastavky, Mode=OneWay}"
                        Grid.Row="0"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"/>
@@ -53,7 +54,7 @@
             <Entry     x:Name="NaZastavkuS"
                        Focused="NaZastavkuS_Focused"
                        Placeholder="Cílová zastávka"
-                       Text="{Binding NaZastavku}"
+                       Text="{Binding NaZastavku, Mode=OneWay}"
                        Grid.Row="1"
                        Grid.Column="1"
                        Grid.ColumnSpan="2"/>
@@ -84,10 +85,8 @@
                         Value="{Binding PocetPrestupu}"/>
                 
 
-            <RadioButton x:Name="Odjezd"
-                         
+            <RadioButton x:Name="Odjezd"            
                          GroupName="Parametr"
-                         Value="{Binding Odjezd}"
                          Content="Odjezd"
                          Grid.Row="3"
                          Grid.Column="2"/>
@@ -95,7 +94,8 @@
             <RadioButton GroupName="Parametr" 
                          Content="Příjezd"
                          Grid.Row="4"
-                         Grid.Column="2"/>
+                         Grid.Column="2"
+                         IsChecked="{Binding Prijezd}"/>
 
             <Button Text="Hledat"
                     Clicked="Hledat_Clicked"

@@ -1,11 +1,12 @@
 ﻿using SQLite;
 using FileHelpers;
 using System.Collections.Generic;
+using System;
 
 namespace MojeCesta.Models
 {
     [DelimitedRecord(",")]
-    public class Stop
+    public class Stop : IComparable
     {
         [PrimaryKey]
         public string Stop_id { get; set; } 
@@ -69,6 +70,22 @@ namespace MojeCesta.Models
             Unknown = 0,
             Allowed = 1,
             Prohibited = 2
+        }
+        public int CompareTo(object obj)
+        {
+            if (obj is Stop b)
+            {
+                int dst = Stop_name.CompareTo(b.Stop_name);
+                if (dst == 0)
+                {
+                    return Platform_code.CompareTo(b.Platform_code);
+                }
+                return dst;
+            }
+            else
+            {
+                throw new ArgumentException("Chybný typ!");
+            }
         }
 
         public override string ToString()

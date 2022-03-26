@@ -120,7 +120,12 @@ namespace MojeCesta.ViewModels
             // Spustit indikátor o aktivitě pro uživatele
             Aktivita = true;
 
-            //Stop[] stanice = await Database.ZastavkyPodleJmena(Promenne.Normalizovat(ZeZastavky.Stop_name));
+            // Vyresetovat hodnoty z předchozího hledání
+            for (int i = 0; i < Promenne.SeznamLinek.Count; i++)
+            {
+                Promenne.SeznamLinek[i].DnesniSpoje = null;
+            }
+
             List<OdjezdyZeStanice> noveVysledky = new List<OdjezdyZeStanice>();
             int stanId = Promenne.Zastavky[ZeZastavky.Stop_id];
 
@@ -134,6 +139,7 @@ namespace MojeCesta.ViewModels
                     stanice.Add(Promenne.SeznamZastavek[Promenne.Zastavky[Promenne.SeznamLinek[Promenne.SeznamZastavek[stanId].Linky[i]].Zastavky[1].Stop_id]]);
                 }
             }
+            stanice.Sort();
 
             // Najít všechny nástupiště zvolené stanice
             for (int i = 0; i < stanice.Count; i++)

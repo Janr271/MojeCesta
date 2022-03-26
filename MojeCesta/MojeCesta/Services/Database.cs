@@ -177,43 +177,116 @@ namespace MojeCesta.Services
         public static async Task<Stop_time[]> NajitOdjezdy(Stop zastavka, TimeSpan cas, DateTime datum)
         {
             List<int> linky = Promenne.SeznamZastavek[Promenne.Zastavky[zastavka.Stop_id]].Linky;
-            List<Trip> spoje = new List<Trip>();
+            List<string> dnesniSpoje = new List<string>();
 
             for (int i = 0; i < linky.Count; i++)
             {
-                spoje.AddRange(await db.QueryAsync<Trip>($"SELECT * FROM Trip WHERE Route_id = '{Promenne.SeznamLinek[linky[i]].Route_id}'"));
-            }
-           
-            List<string> dnesniSpoje = new List<string>();
-
-            // Kontrola, zda spoj odjíždí ve vybraném termínu
-            for (int i = 0; i < spoje.Count; i++)
-            {
-                Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date <= datum && c.End_date >= datum && c.DenVTydnu(datum.DayOfWeek))
+                if(Promenne.SeznamLinek[linky[i]].DnesniSpoje == null)
                 {
-                    dnesniSpoje.Add(spoje[i].Trip_id);
+                    // Najít den v týdnu
+                    string denVTydnu;
+                    switch (datum.DayOfWeek)
+                    {
+                        case DayOfWeek.Monday:
+                            denVTydnu = nameof(Calendar.Monday);
+                            break;
+
+                        case DayOfWeek.Tuesday:
+                            denVTydnu = nameof(Calendar.Tuesday);
+                            break;
+
+                        case DayOfWeek.Wednesday:
+                            denVTydnu = nameof(Calendar.Wednesday);
+                            break;
+
+                        case DayOfWeek.Thursday:
+                            denVTydnu = nameof(Calendar.Thursday);
+                            break;
+
+                        case DayOfWeek.Friday:
+                            denVTydnu = nameof(Calendar.Friday);
+                            break;
+
+                        case DayOfWeek.Saturday:
+                            denVTydnu = nameof(Calendar.Saturday);
+                            break;
+
+                        case DayOfWeek.Sunday:
+                            denVTydnu = nameof(Calendar.Sunday);
+                            break;
+
+                        default:
+                            denVTydnu = "";
+                            break;
+                    }
+
+                    // Najit seznam dnešních spoju na lince
+                    List<Trip> spoje = db.QueryAsync<Trip>($"SELECT * FROM Trip JOIN Calendar ON Trip.Service_id = Calendar.Service_id WHERE Trip.Route_id = '{Promenne.SeznamLinek[linky[i]].Route_id}' AND Calendar.{denVTydnu}  AND '{datum.Ticks}' BETWEEN Calendar.Start_date AND Calendar.End_date").Result;
+
+                    Promenne.SeznamLinek[linky[i]].DnesniSpoje = new List<string>();
+                    // Přepsat id do seznamu
+                    for (int y = 0; y < spoje.Count; y++)
+                    {
+                        Promenne.SeznamLinek[linky[i]].DnesniSpoje.Add(spoje[y].Trip_id);
+                    }
                 }
 
+                dnesniSpoje.AddRange(Promenne.SeznamLinek[linky[i]].DnesniSpoje);
             }
 
             return await db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time >= cas && a.Pickup_type != Stop_time.Pickup.NoPickup && dnesniSpoje.Contains(a.Trip_id)).Take(5).OrderBy(a => a.Departure_time).ToArrayAsync();
         }
 
         // Najít nejbližší odjezd z nástupiště ve vyhledávání spojení
-        public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route route, DateTime datum)
+        public static Task<Stop_time> NajitNejblizsiOdjezd(Stop zastavka, Route linka, DateTime datum)
         {
-            // Najit seznam spoju na lince
-            List<Trip> spoje = db.Table<Trip>().Where(a => a.Route_id == route.Route_id && (Route_stop.Direction)a.Direction_id == route.Smer).ToListAsync().Result;
-            List<string> dnesniSpoje = new List<string>();
-
-            // Kontrola, zda spoj odjíždí ve vybraném termínu
-            for (int i = 0; i < spoje.Count; i++)
+            if(linka.DnesniSpoje == null)
             {
-                Calendar c = NajitKalendar(spoje[i].Service_id).Result;
-                if (c.Start_date <= datum && c.End_date >= datum && c.DenVTydnu(datum.DayOfWeek))
+                // Najít den v týdnu
+                string denVTydnu;
+                switch (datum.DayOfWeek)
                 {
-                    dnesniSpoje.Add(spoje[i].Trip_id);
+                    case DayOfWeek.Monday:
+                        denVTydnu = nameof(Calendar.Monday);
+                        break;
+
+                    case DayOfWeek.Tuesday:
+                        denVTydnu = nameof(Calendar.Tuesday);
+                        break;
+
+                    case DayOfWeek.Wednesday:
+                        denVTydnu = nameof(Calendar.Wednesday);
+                        break;
+
+                    case DayOfWeek.Thursday:
+                        denVTydnu = nameof(Calendar.Thursday);
+                        break;
+
+                    case DayOfWeek.Friday:
+                        denVTydnu = nameof(Calendar.Friday);
+                        break;
+
+                    case DayOfWeek.Saturday:
+                        denVTydnu = nameof(Calendar.Saturday);
+                        break;
+
+                    case DayOfWeek.Sunday:
+                        denVTydnu = nameof(Calendar.Sunday);
+                        break;
+
+                    default:
+                        denVTydnu = "";
+                        break;
+                }
+
+                // Najit seznam dnešních spoju na lince
+                List<Trip> spoje = db.QueryAsync<Trip>($"SELECT * FROM Trip JOIN Calendar ON Trip.Service_id = Calendar.Service_id WHERE Trip.Route_id = '{linka.Route_id}' AND Trip.Direction_id = '{(int)linka.Smer}' AND Calendar.{denVTydnu}  AND '{datum.Ticks}' BETWEEN Calendar.Start_date AND Calendar.End_date").Result;
+
+                linka.DnesniSpoje = new List<string>();
+                // Přepsat id do seznamu
+                for (int i = 0; i < spoje.Count; i++)
+                {
+                   linka.DnesniSpoje.Add(spoje[i].Trip_id);
                 }
             }
 
@@ -221,14 +294,75 @@ namespace MojeCesta.Services
             TimeSpan maxCas = datum.AddHours(2).TimeOfDay;
 
             // Najít nejbližší odjezd některého spoje
-            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && a.Departure_time < maxCas && dnesniSpoje.Contains(a.Trip_id)).OrderBy(a => a.Departure_time).FirstOrDefaultAsync();
+            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time > cas && a.Departure_time < maxCas && linka.DnesniSpoje.Contains(a.Trip_id)).OrderBy(a => a.Departure_time).FirstOrDefaultAsync();
         }
 
-        // Najít příjezd spoje do vybrané stanice ve vyhledávání spojení
-        public static Task<Stop_time> NajitPrijezd(string stopId, string tripId)
+        // Najít nejbližší odjezd z nástupiště ve vyhledávání spojení
+        public static Task<Stop_time> NajitNejblizsiPrijezd(Stop zastavka, Route linka, DateTime datum)
+        {
+            if (linka.DnesniSpoje == null)
+            {
+                // Najít den v týdnu
+                string denVTydnu;
+                switch (datum.DayOfWeek)
+                {
+                    case DayOfWeek.Monday:
+                        denVTydnu = nameof(Calendar.Monday);
+                        break;
+
+                    case DayOfWeek.Tuesday:
+                        denVTydnu = nameof(Calendar.Tuesday);
+                        break;
+
+                    case DayOfWeek.Wednesday:
+                        denVTydnu = nameof(Calendar.Wednesday);
+                        break;
+
+                    case DayOfWeek.Thursday:
+                        denVTydnu = nameof(Calendar.Thursday);
+                        break;
+
+                    case DayOfWeek.Friday:
+                        denVTydnu = nameof(Calendar.Friday);
+                        break;
+
+                    case DayOfWeek.Saturday:
+                        denVTydnu = nameof(Calendar.Saturday);
+                        break;
+
+                    case DayOfWeek.Sunday:
+                        denVTydnu = nameof(Calendar.Sunday);
+                        break;
+
+                    default:
+                        denVTydnu = "";
+                        break;
+                }
+
+                // Najit seznam dnešních spoju na lince
+                List<Trip> spoje = db.QueryAsync<Trip>($"SELECT * FROM Trip JOIN Calendar ON Trip.Service_id = Calendar.Service_id WHERE Trip.Route_id = '{linka.Route_id}' AND Trip.Direction_id = '{(int)linka.Smer}' AND Calendar.{denVTydnu}  AND '{datum.Ticks}' BETWEEN Calendar.Start_date AND Calendar.End_date").Result;
+
+                linka.DnesniSpoje = new List<string>();
+                // Přepsat id do seznamu
+                for (int i = 0; i < spoje.Count; i++)
+                {
+                    linka.DnesniSpoje.Add(spoje[i].Trip_id);
+                }
+            }
+
+            TimeSpan cas = datum.TimeOfDay;
+            TimeSpan minCas = datum.AddHours(-2).TimeOfDay;
+
+            // Najít nejbližší odjezd některého spoje
+            return db.Table<Stop_time>().Where(a => a.Stop_id == zastavka.Stop_id && a.Departure_time < cas && a.Departure_time > minCas && linka.DnesniSpoje.Contains(a.Trip_id)).OrderByDescending(a => a.Departure_time).FirstOrDefaultAsync();
+        }
+
+        // Najít příjezd nebo odjezd spoje do vybrané stanice ve vyhledávání spojení
+        public static Task<Stop_time> NajitZastaveni(string stopId, string tripId)
         {
             return db.Table<Stop_time>().Where(a => a.Trip_id == tripId && a.Stop_id == stopId).FirstOrDefaultAsync();
         }
+
         public static Task<Trip> NajitSpoj(string id)
         {
             return db.FindAsync<Trip>(id);
@@ -255,11 +389,11 @@ namespace MojeCesta.Services
         // Načítání a ukládání historie vyhledávání
         public static Task<List<HistorieOdjezdu>> NacistOdjezdy()
         {
-            return db.Table<HistorieOdjezdu>().OrderByDescending(a => a.Id).Take(20).ToListAsync();
+            return db.QueryAsync<HistorieOdjezdu>($"SELECT ZeZastavkyId, ZeZastavky FROM HistorieOdjezdu GROUP BY ZeZastavkyId, ZeZastavky ORDER BY MAX(Id) DESC LIMIT 20");
         }
         public static Task<List<HistorieSpojeni>> NacistSpojeni()
         {
-            return db.Table<HistorieSpojeni>().OrderByDescending(a => a.Id).Take(20).ToListAsync();
+            return db.QueryAsync<HistorieSpojeni>($"SELECT ZeZastavkyId, ZeZastavky, NaZastavkuId, NaZastavku FROM HistorieSpojeni GROUP BY ZeZastavkyId, ZeZastavky, NaZastavkuId, NaZastavku ORDER BY MAX(Id) DESC LIMIT 20");
         }
         public static async Task UlozitSpojeni(HistorieSpojeni spojeni)
         {

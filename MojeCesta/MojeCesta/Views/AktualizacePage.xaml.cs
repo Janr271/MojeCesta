@@ -26,10 +26,10 @@ namespace MojeCesta.Views
            await Services.AktualizaceDat.Aktualizovat(this);
         }
 
-        public void Zavrit()
+        public async void Zavrit()
         {
             Aktivita.IsRunning = false;
-            Navigation.PopModalAsync();
+            await Navigation.PopModalAsync();
         }
     }
 }
