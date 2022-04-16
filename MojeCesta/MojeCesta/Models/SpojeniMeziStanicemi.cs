@@ -36,7 +36,7 @@ namespace MojeCesta.Models
         {
             if (obj is SpojeniMeziStanicemi b)
             {
-                int dst = Vzdalenost.CompareTo(b.Vzdalenost);
+                int dst = Cas.CompareTo(b.Cas);
                 if(dst == 0)
                 {
                     return Odjezd.CompareTo(b.Odjezd);

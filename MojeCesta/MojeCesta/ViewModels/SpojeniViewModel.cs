@@ -209,7 +209,7 @@ namespace MojeCesta.ViewModels
                 Promenne.SeznamLinek[i].DnesniSpoje = null;
             }
 
-            List<Cesta> reseni = new List<Cesta>();
+            List<List<Presun>> reseni = new List<List<Presun>>();
             Queue<Cesta> zasobnik = new Queue<Cesta>();
             int vychoziStanId = Promenne.Zastavky[ZeZastavky.Stop_id];
             int cilovaStanId = Promenne.Zastavky[NaZastavku.Stop_id];
@@ -248,7 +248,7 @@ namespace MojeCesta.ViewModels
                         Route aktualniL = Promenne.SeznamLinek[aktualniZ.Linky[i]];
                         
                         // Zakázat linky s více pěšímy přestupy za sebou
-                        if(c.ListPresunu.Count != 0 && Promenne.SeznamLinek[c.ListPresunu[c.ListPresunu.Count - 1].LinkaId].Pesky && aktualniL.Pesky)
+                        if(c.ListPresunu.Count != 0 && c.PosledniPesi && aktualniL.Pesky)
                         {
                           continue;
                         }
@@ -265,8 +265,40 @@ namespace MojeCesta.ViewModels
                             if (poradiStanice != -1 && ciloveStanId.Contains(Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id]))
                             {
                                 Cesta novaCesta = new Cesta(Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], c.ListPresunu, c.Prestupu);
-                                novaCesta.ListPresunu.Add(new Presun(c.IdStanice, Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], aktualniZ.Linky[i]));
-                                reseni.Add(novaCesta);
+                                if (!Promenne.SeznamLinek[aktualniZ.Linky[i]].Pesky)
+                                {
+                                    novaCesta.ListPresunu.Add(new Presun(c.IdStanice, Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], aktualniZ.Linky[i]));
+                                }
+
+                                bool jeUnikatni = true;
+
+                                // Zkontrolovat, že řešení už neobsahuje podobný výsledek a případně přidat nový výsledek do řešení
+                                for (int x = 0; x < reseni.Count; x++)
+                                {
+                                    bool shodneLinky = true;
+                                    for (int z = 0; z < reseni[x].Count; z++)
+                                    {
+                                        if(novaCesta.ListPresunu.Count <= z)
+                                        {
+                                            break;
+                                        }
+                                        if(novaCesta.ListPresunu[z].LinkaId != reseni[x][z].LinkaId)
+                                        {
+                                            shodneLinky = false;
+                                            break;
+                                        }
+                                    }
+                                    if (shodneLinky)
+                                    {
+                                        jeUnikatni = false;
+                                        break;
+                                    }
+                                }
+                                if (jeUnikatni)
+                                {
+                                    reseni.Add(novaCesta.ListPresunu);
+                                }
+
                                 obsahujeCil = true;
                                 break;
                             }
@@ -279,7 +311,14 @@ namespace MojeCesta.ViewModels
                             for (int y = poradiStanice + 1; y < aktualniL.Navstiveno; y++)
                             {
                                 Cesta novaCesta = new Cesta(Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], c.ListPresunu, aktualniL.Pesky? c.Prestupu :  c.Prestupu + 1);
-                                novaCesta.ListPresunu.Add(new Presun(c.IdStanice, Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], aktualniZ.Linky[i]));
+                                if (!Promenne.SeznamLinek[aktualniZ.Linky[i]].Pesky)
+                                {
+                                    novaCesta.ListPresunu.Add(new Presun(c.IdStanice, Promenne.Zastavky[aktualniL.Zastavky[y].Stop_id], aktualniZ.Linky[i]));
+                                }
+                                else
+                                {
+                                    novaCesta.PosledniPesi = true;
+                                }
                                 zasobnik.Enqueue(novaCesta);
                             }
                             // Uložit poslední návštěvu linky
@@ -298,7 +337,7 @@ namespace MojeCesta.ViewModels
             // Pokud existuje nějaké řešení
             if(reseni.Count > 0)
             {
-                int i = 0;
+                int i = 0, pocetSpoju = 1;
                 SpojeniMeziStanicemi spojeni;
                 DateTime cas = Datum.Add(Cas);
                 TimeSpan pocatecniCas;
@@ -308,6 +347,8 @@ namespace MojeCesta.ViewModels
                 // Projít nalezená řešení a spočítat odjezdy
                 do
                 {
+                    bool odebranoReseni = false;
+
                     // Spočítat časy nalezeného spojení
                     if (Prijezd)
                     {
@@ -339,7 +380,8 @@ namespace MojeCesta.ViewModels
                     else
                     {
                         // Odebrat řešení, které není možné tento den použít
-                        reseni.RemoveAt(i--);
+                        reseni.RemoveAt(i);
+                        odebranoReseni = true;
                     }
 
                     // Pokud se jedná o poslední možné řešení, projít seznam znovu s pozdějším časem, jinak přejít na další řešení
@@ -357,8 +399,24 @@ namespace MojeCesta.ViewModels
                     }
                     else
                     {
-                        i++;
-                        cas = Datum.Add(Cas);
+                        if (!odebranoReseni)
+                        {
+                            i++;
+                        }
+
+                        if (reseni[i].Count > pocetSpoju && nejakeReseni)
+                        {
+                            i = 0;
+                            cas = Datum.Add(pocatecniCas).AddMinutes(3);
+                            nejakeReseni = false;
+                        }
+                        else
+                        {
+                            if (reseni[i].Count > pocetSpoju)
+                            {
+                                pocetSpoju++;
+                            }
+                        }
                     }
                 }
                 // Opakovat dokud nebude nalezeno určité množství výsledků, 
@@ -388,7 +446,7 @@ namespace MojeCesta.ViewModels
             Aktivita = false;
         }
 
-        SpojeniMeziStanicemi SpocitatSpojeni(Cesta reseni, out double ujetaVzdalenost, DateTime cas)
+        SpojeniMeziStanicemi SpocitatSpojeni(List<Presun> reseni, out double ujetaVzdalenost, DateTime cas)
         {
             bool maReseni = true;
             ujetaVzdalenost = 0;
@@ -396,9 +454,9 @@ namespace MojeCesta.ViewModels
             Stop_time odjezd, prijezd;
 
             // Projít všechny dílčí spoje
-            for (int y = 0; y < reseni.ListPresunu.Count && maReseni; y++)
+            for (int y = 0; y < reseni.Count && maReseni; y++)
             {
-                Presun aktualniP = reseni.ListPresunu[y];
+                Presun aktualniP = reseni[y];
 
                 // Nezapočítávat pěší přechody
                 if (!Promenne.SeznamLinek[aktualniP.LinkaId].Pesky)
@@ -443,7 +501,7 @@ namespace MojeCesta.ViewModels
             return maReseni? spojeni : null;
         }
 
-        SpojeniMeziStanicemi SpocitatSpojeniObracene(Cesta reseni, out double ujetaVzdalenost, DateTime cas)
+        SpojeniMeziStanicemi SpocitatSpojeniObracene(List<Presun> reseni, out double ujetaVzdalenost, DateTime cas)
         {
             bool maReseni = true;
             ujetaVzdalenost = 0;
@@ -451,9 +509,9 @@ namespace MojeCesta.ViewModels
             Stop_time odjezd, prijezd;
 
             // Projít všechny dílčí spoje
-            for (int y = reseni.ListPresunu.Count - 1; y >= 0 && maReseni; y--)
+            for (int y = reseni.Count - 1; y >= 0 && maReseni; y--)
             {
-                Presun aktualniP = reseni.ListPresunu[y];
+                Presun aktualniP = reseni[y];
 
                 // Nezapočítávat pěší přechody
                 if (!Promenne.SeznamLinek[aktualniP.LinkaId].Pesky)
@@ -499,7 +557,7 @@ namespace MojeCesta.ViewModels
             return maReseni ? spojeni : null;
         }
 
-        class Presun
+        class Presun : IEquatable<Presun>
         {
             public Presun(int zeStaniceId, int naStaniciId, int linkaId)
             {
@@ -511,6 +569,12 @@ namespace MojeCesta.ViewModels
             public int ZeStaniceId;
             public int NaStaniciId;
             public int LinkaId;
+
+            // Porovnání zda je cesta složena ze stejných linek
+            public bool Equals(Presun other)
+            {
+                return LinkaId == other.LinkaId;
+            }
         }
 
         class Cesta
@@ -520,6 +584,7 @@ namespace MojeCesta.ViewModels
                 IdStanice = idStanice;
                 ListPresunu = new List<Presun>();
                 Prestupu = prestupu;
+                PosledniPesi = false;
 
                 for (int i = 0; i < presuny.Count; i++)
                 {
@@ -529,6 +594,8 @@ namespace MojeCesta.ViewModels
             public int IdStanice;
             public List<Presun> ListPresunu;
             public int Prestupu;
+            // Pokud je poslední spojení pěší
+            public bool PosledniPesi;
         }
     }
 }
